@@ -17,6 +17,7 @@ import GroupDetail from "./pages/GroupDetail";
 import Analytics from "./pages/Analytics";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Create a client for React Query
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,7 +29,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData, Balance } from '@/contexts/DataContext';
@@ -13,17 +12,20 @@ import {
   Users, 
   ArrowLeft, 
   Clock,
-  User
+  User,
+  UserPlus
 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import AddExpenseForm from '@/components/AddExpenseForm';
+import AddMemberForm from '@/components/AddMemberForm';
 
 const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { getGroupById, getGroupExpenses, getGroupBalances } = useData();
+  const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup } = useData();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
   if (!groupId) {
     navigate('/groups');
@@ -36,11 +38,16 @@ const GroupDetail = () => {
     return null;
   }
 
+  const isAdmin = currentUser?.id === group.createdBy;
+
   const expenses = getGroupExpenses(groupId);
   const balances = getGroupBalances(groupId);
 
-  // Find current user's balance
   const userBalance = balances.find(b => b.userId === currentUser?.id);
+
+  const handleAddMember = async (email: string) => {
+    await addMemberToGroup(groupId, email);
+  };
 
   return (
     <Layout>
@@ -89,10 +96,19 @@ const GroupDetail = () => {
           </Card>
         </div>
 
-        <Button onClick={() => setIsExpenseModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Expense
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsExpenseModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Expense
+          </Button>
+          
+          {isAdmin && (
+            <Button variant="outline" onClick={() => setIsMemberModalOpen(true)}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Member
+            </Button>
+          )}
+        </div>
 
         <Tabs defaultValue="expenses">
           <TabsList>
@@ -209,6 +225,19 @@ const GroupDetail = () => {
             groupId={groupId} 
             onSuccess={() => setIsExpenseModalOpen(false)} 
             members={group.members}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMemberModalOpen} onOpenChange={setIsMemberModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Member</DialogTitle>
+          </DialogHeader>
+          <AddMemberForm 
+            groupId={groupId} 
+            onSuccess={() => setIsMemberModalOpen(false)}
+            onAddMember={handleAddMember}
           />
         </DialogContent>
       </Dialog>

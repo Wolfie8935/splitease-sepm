@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useToast } from "@/components/ui/use-toast";
@@ -38,6 +37,7 @@ interface DataContextType {
   groups: Group[];
   expenses: Expense[];
   createGroup: (name: string, memberEmails: string[]) => Promise<Group>;
+  addMemberToGroup: (groupId: string, memberEmail: string) => Promise<void>;
   addExpense: (
     groupId: string, 
     description: string, 
@@ -68,7 +68,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load data from localStorage
   useEffect(() => {
     if (currentUser) {
       try {
@@ -86,14 +85,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Failed to parse stored data", e);
       }
     } else {
-      // Clear data when user logs out
       setGroups([]);
       setExpenses([]);
     }
     setIsLoading(false);
   }, [currentUser]);
 
-  // Save data to localStorage whenever it changes
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem(GROUPS_STORAGE_KEY, JSON.stringify(groups));
@@ -121,7 +118,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsLoading(true);
     try {
-      // Mock API call to find users by email
       const storedUsers = localStorage.getItem('splitly_users');
       const users = storedUsers ? JSON.parse(storedUsers) : {};
       
@@ -133,7 +129,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: user.email,
         }));
       
-      // Ensure current user is in the group
       if (!members.some(member => member.id === currentUser.id)) {
         members.push({
           id: currentUser.id,
@@ -170,6 +165,63 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addMemberToGroup = async (groupId: string, memberEmail: string) => {
+    if (!currentUser) throw new Error("You must be logged in to add members");
+    
+    const group = groups.find(g => g.id === groupId);
+    if (!group) throw new Error("Group not found");
+    
+    if (group.members.some(member => member.email.toLowerCase() === memberEmail.toLowerCase())) {
+      throw new Error("This person is already a member of the group");
+    }
+    
+    setIsLoading(true);
+    try {
+      const storedUsers = localStorage.getItem('splitly_users');
+      const users = storedUsers ? JSON.parse(storedUsers) : {};
+      
+      const userToAdd = Object.values(users).find(
+        (user: any) => user.email.toLowerCase() === memberEmail.toLowerCase()
+      );
+      
+      if (!userToAdd) {
+        throw new Error("User not found. They need to register first.");
+      }
+      
+      const newMember = {
+        id: (userToAdd as any).id,
+        name: (userToAdd as any).name,
+        email: memberEmail,
+      };
+      
+      const updatedGroups = groups.map(g => {
+        if (g.id === groupId) {
+          return {
+            ...g,
+            members: [...g.members, newMember]
+          };
+        }
+        return g;
+      });
+      
+      setGroups(updatedGroups);
+      
+      toast({
+        title: "Member added",
+        description: `Successfully added ${newMember.name} to the group`,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to add member",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addExpense = async (
     groupId: string, 
     description: string, 
@@ -194,7 +246,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           amount: parseFloat(splitAmount.toFixed(2)),
         }));
       } else if (splitType === 'custom' && customSplits) {
-        // Validate that custom splits sum up to the total amount
         const totalSplit = customSplits.reduce((sum, split) => sum + split.amount, 0);
         if (Math.abs(totalSplit - amount) > 0.01) {
           throw new Error("Custom splits must add up to the total amount");
@@ -242,7 +293,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const groupExpenses = expenses.filter(e => e.groupId === groupId);
     
-    // Initialize balances for each member
     const balances: Record<string, Balance> = {};
     group.members.forEach(member => {
       balances[member.id] = {
@@ -252,12 +302,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     });
     
-    // Calculate balances based on expenses
     groupExpenses.forEach(expense => {
-      // Add the full amount to the payer's balance
       balances[expense.paidBy].amount += expense.amount;
       
-      // Subtract each person's share
       expense.splits.forEach(split => {
         balances[split.userId].amount -= split.amount;
       });
@@ -302,6 +349,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     groups,
     expenses,
     createGroup,
+    addMemberToGroup,
     addExpense,
     getGroupBalances,
     getUserTotalBalance,

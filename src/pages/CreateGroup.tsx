@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 import { X, PlusCircle } from 'lucide-react';
 import Layout from '@/components/Layout';
 
@@ -15,6 +16,7 @@ const CreateGroup = () => {
   const [error, setError] = useState('');
   const { createGroup, isLoading } = useData();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleAddMember = () => {
     setMemberEmails([...memberEmails, '']);
@@ -46,9 +48,19 @@ const CreateGroup = () => {
 
     try {
       const newGroup = await createGroup(name, validEmails);
+      toast({
+        title: "Success!",
+        description: `Group "${name}" has been created successfully.`,
+      });
       navigate(`/groups/${newGroup.id}`);
     } catch (err) {
+      console.error('Error creating group:', err);
       setError(err instanceof Error ? err.message : 'Failed to create group');
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Failed to create group',
+        variant: "destructive",
+      });
     }
   };
 
@@ -68,7 +80,7 @@ const CreateGroup = () => {
             
             <CardContent className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+                <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm">
                   {error}
                 </div>
               )}

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useData, Balance } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,8 @@ import {
   ArrowLeft, 
   Clock,
   User,
-  UserPlus
+  UserPlus,
+  ArrowRightLeft
 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import AddExpenseForm from '@/components/AddExpenseForm';
@@ -106,6 +108,13 @@ const GroupDetail = () => {
             <Button variant="outline" onClick={() => setIsMemberModalOpen(true)}>
               <UserPlus className="mr-2 h-4 w-4" />
               Add Member
+            </Button>
+          )}
+          
+          {userBalance && userBalance.amount < 0 && (
+            <Button variant="outline" onClick={() => navigate(`/groups/${groupId}/settle`)}>
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              Settle Up
             </Button>
           )}
         </div>

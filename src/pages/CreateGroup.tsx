@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/components/ui/use-toast';
 import { X, PlusCircle } from 'lucide-react';
 import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
 
 const CreateGroup = () => {
   const [name, setName] = useState('');
@@ -47,7 +48,26 @@ const CreateGroup = () => {
     }
 
     try {
+      console.log('Creating group with name:', name, 'and members:', validEmails);
+      
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError('You must be logged in to create a group');
+        toast({
+          title: "Authentication Error",
+          description: "You must be logged in to create a group",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const newGroup = await createGroup(name, validEmails);
+      
+      if (!newGroup || !newGroup.id) {
+        throw new Error('Failed to create group - no group ID returned');
+      }
+      
       toast({
         title: "Success!",
         description: `Group "${name}" has been created successfully.`,

@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				splitly: {
+					teal: '#38B2AC',
+					darkTeal: '#2C8A86',
+					lightTeal: '#4FD1CB',
+					gray: '#718096',
+					lightGray: '#E2E8F0',
+					darkGray: '#2D3748',
 				}
 			},
 			borderRadius: {

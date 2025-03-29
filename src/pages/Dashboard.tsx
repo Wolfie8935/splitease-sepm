@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
@@ -15,8 +14,10 @@ import {
   ArrowDownCircle 
 } from 'lucide-react';
 import Layout from '@/components/Layout';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
+  const [userName, setUserName] = useState<string>('');
   const { currentUser } = useAuth();
   const { 
     getUserGroups, 
@@ -24,6 +25,26 @@ const Dashboard = () => {
     getTotalSpent,
     isLoading 
   } = useData();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (currentUser?.id) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (data && !error) {
+          setUserName(data.name);
+        } else {
+          setUserName('User');
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [currentUser]);
 
   const groups = getUserGroups();
   const totalBalance = getUserTotalBalance();
@@ -33,7 +54,7 @@ const Dashboard = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Welcome, {currentUser?.name}</h1>
+          <h1 className="text-3xl font-bold">Welcome, {userName || 'User'}</h1>
           <p className="text-muted-foreground">Here's an overview of your expenses and groups</p>
         </div>
 

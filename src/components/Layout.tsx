@@ -45,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="bg-primary text-primary-foreground p-1 rounded-md">
               <DollarSign size={20} />
             </div>
-            <span className="font-bold text-xl">Splitly</span>
+            <span className="font-bold text-xl">SplitEase</span>
           </Link>
           
           <DropdownMenu>
@@ -93,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="bg-primary text-primary-foreground p-2 rounded-md">
                 <DollarSign size={24} />
               </div>
-              <span className="font-bold text-xl">Splitly</span>
+              <span className="font-bold text-xl">SplitEase</span>
             </Link>
           </div>
           
@@ -140,7 +140,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full flex items-center justify-start px-4">
                   <User className="mr-2 h-4 w-4" />
-                  <span className="truncate">{currentUser.name}</span>
+                  <span className="truncate">{currentUser.email}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

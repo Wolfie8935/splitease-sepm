@@ -38,7 +38,7 @@ const Login = () => {
         
         <Card>
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Login to Splitly</CardTitle>
+            <CardTitle className="text-2xl font-bold">Login to SplitEase</CardTitle>
             <CardDescription>
               Enter your email and password to login to your account
             </CardDescription>

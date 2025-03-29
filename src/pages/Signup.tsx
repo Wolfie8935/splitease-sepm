@@ -47,7 +47,7 @@ const Signup = () => {
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>
-              Enter your details to create a Splitly account
+              Enter your details to create a SplitEase account
             </CardDescription>
           </CardHeader>
           

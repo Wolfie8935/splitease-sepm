@@ -1,15 +1,71 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Users } from 'lucide-react';
+import { 
+  PlusCircle, 
+  Users, 
+  Trash2,
+  MoreVertical
+} from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from '@/components/ui/use-toast';
 import Layout from '@/components/Layout';
 
 const Groups = () => {
-  const { getUserGroups, isLoading } = useData();
+  const { getUserGroups, deleteGroup, isLoading } = useData();
+  const { currentUser } = useAuth();
+  const { toast } = useToast();
   const groups = getUserGroups();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+
+  const handleDeleteConfirm = async () => {
+    if (!groupToDelete) return;
+    
+    try {
+      await deleteGroup(groupToDelete);
+      toast({
+        title: "Group deleted",
+        description: "The group has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete group. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGroupToDelete(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const openDeleteDialog = (groupId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setGroupToDelete(groupId);
+    setDeleteDialogOpen(true);
+  };
 
   return (
     <Layout>
@@ -33,7 +89,31 @@ const Groups = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {groups.map((group) => (
               <Link key={group.id} to={`/groups/${group.id}`}>
-                <Card className="h-full cursor-pointer hover:shadow-md transition-shadow">
+                <Card className="h-full cursor-pointer hover:shadow-md transition-shadow relative">
+                  {currentUser?.id === group.createdBy && (
+                    <div 
+                      className="absolute top-3 right-3 z-10"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            className="text-destructive focus:text-destructive"
+                            onClick={(e) => openDeleteDialog(group.id, e)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Group
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
+
                   <CardHeader>
                     <CardTitle>{group.name}</CardTitle>
                     <CardDescription>{group.members.length} members</CardDescription>
@@ -44,7 +124,7 @@ const Groups = () => {
                         {group.members.slice(0, 3).map((member, index) => (
                           <div 
                             key={member.id} 
-                            className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs border-2 border-white"
+                            className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs border-2 border-background"
                             title={member.name}
                           >
                             {member.name.charAt(0)}
@@ -52,7 +132,7 @@ const Groups = () => {
                         ))}
                         
                         {group.members.length > 3 && (
-                          <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs border-2 border-white">
+                          <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs border-2 border-background">
                             +{group.members.length - 3}
                           </div>
                         )}
@@ -84,6 +164,27 @@ const Groups = () => {
           </Card>
         )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              group and all of its expenses.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };

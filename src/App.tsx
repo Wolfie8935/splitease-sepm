@@ -17,6 +17,7 @@ import CreateGroup from "./pages/CreateGroup";
 import GroupDetail from "./pages/GroupDetail";
 import Analytics from "./pages/Analytics";
 import SettleUp from "./pages/SettleUp";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Create a client for React Query
@@ -69,6 +70,12 @@ const App = () => (
                 <Route path="/analytics" element={
                   <ProtectedRoute>
                     <Analytics />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 } />
                 

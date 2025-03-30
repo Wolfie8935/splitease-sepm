@@ -20,6 +20,7 @@ import Analytics from "./pages/Analytics";
 import SettleUp from "./pages/SettleUp";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./components/AppLayout";
 
 // Create a client for React Query
 const queryClient = new QueryClient();

@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, Provider } from '@supabase/supabase-js';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithGithub: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -67,6 +68,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loginWithGithub = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/profile`,
+        },
+      });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      toast({
+        title: "GitHub login failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+      throw error;
     }
   };
 
@@ -128,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     signup,
     logout,
+    loginWithGithub,
     isLoading,
   };
 

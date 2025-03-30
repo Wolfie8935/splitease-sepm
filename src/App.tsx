@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Groups from "./pages/Groups";
 import CreateGroup from "./pages/CreateGroup";
 import GroupDetail from "./pages/GroupDetail";
+import EditGroup from "./pages/EditGroup";
 import Analytics from "./pages/Analytics";
 import SettleUp from "./pages/SettleUp";
 import Profile from "./pages/Profile";
@@ -58,6 +59,12 @@ const App = () => (
                 <Route path="/groups/:groupId" element={
                   <ProtectedRoute>
                     <GroupDetail />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/groups/:groupId/edit" element={
+                  <ProtectedRoute>
+                    <EditGroup />
                   </ProtectedRoute>
                 } />
                 

@@ -15,8 +15,16 @@ import {
   Clock,
   User,
   UserPlus,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Edit,
+  Check
 } from 'lucide-react';
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
+} from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
 import Layout from '@/components/Layout';
 import AddExpenseForm from '@/components/AddExpenseForm';
 import AddMemberForm from '@/components/AddMemberForm';
@@ -28,6 +36,8 @@ const GroupDetail = () => {
   const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup } = useData();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [editingNickname, setEditingNickname] = useState<string | null>(null);
+  const [nickname, setNickname] = useState('');
 
   if (!groupId) {
     navigate('/groups');
@@ -51,6 +61,71 @@ const GroupDetail = () => {
     await addMemberToGroup(groupId, email);
   };
 
+  const startEditingNickname = (memberId: string, currentName: string) => {
+    setEditingNickname(memberId);
+    setNickname(currentName);
+  };
+
+  const saveNickname = () => {
+    // In a real implementation, this would save to the database
+    // For now we'll just clear the editing state
+    setEditingNickname(null);
+    setNickname('');
+    
+    // Show a toast notification
+    // This would be implemented properly with user context and database
+  };
+
+  // Calculate who pays whom to settle debts
+  const calculateSettlements = () => {
+    // Create a copy of balances and sort by amount
+    const sortedBalances = [...balances].sort((a, b) => a.amount - b.amount);
+    const settlements = [];
+
+    let i = 0; // index for people who owe money (negative balance)
+    let j = sortedBalances.length - 1; // index for people who are owed money (positive balance)
+
+    while (i < j) {
+      const debtor = sortedBalances[i];
+      const creditor = sortedBalances[j];
+
+      // Skip people with zero balance
+      if (Math.abs(debtor.amount) < 0.01) {
+        i++;
+        continue;
+      }
+      if (Math.abs(creditor.amount) < 0.01) {
+        j--;
+        continue;
+      }
+
+      // Calculate payment amount
+      const paymentAmount = Math.min(Math.abs(debtor.amount), creditor.amount);
+
+      if (paymentAmount > 0) {
+        settlements.push({
+          from: debtor.userName,
+          fromId: debtor.userId,
+          to: creditor.userName,
+          toId: creditor.userId,
+          amount: paymentAmount
+        });
+
+        // Adjust balances
+        debtor.amount += paymentAmount;
+        creditor.amount -= paymentAmount;
+      }
+
+      // Move indices if balances are settled
+      if (Math.abs(debtor.amount) < 0.01) i++;
+      if (Math.abs(creditor.amount) < 0.01) j--;
+    }
+
+    return settlements;
+  };
+
+  const settlements = calculateSettlements();
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -59,6 +134,16 @@ const GroupDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-3xl font-bold">{group.name}</h1>
+          {isAdmin && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="ml-2"
+              onClick={() => navigate(`/groups/${groupId}/edit`)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -98,7 +183,7 @@ const GroupDetail = () => {
           </Card>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={() => setIsExpenseModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Expense
@@ -120,9 +205,10 @@ const GroupDetail = () => {
         </div>
 
         <Tabs defaultValue="expenses">
-          <TabsList>
+          <TabsList className="w-full md:w-auto">
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="balances">Balances</TabsTrigger>
+            <TabsTrigger value="settlements">Settle Up</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
           </TabsList>
           
@@ -138,7 +224,11 @@ const GroupDetail = () => {
                           <div>
                             <h3 className="font-medium">{expense.description}</h3>
                             <div className="flex items-center text-sm text-muted-foreground mt-1">
-                              <User className="mr-1 h-3 w-3" />
+                              <Avatar className="mr-2 h-5 w-5">
+                                <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                  {paidByUser?.name.charAt(0) || '?'}
+                                </AvatarFallback>
+                              </Avatar>
                               <span>Paid by {paidByUser?.name || 'Unknown'}</span>
                             </div>
                             <div className="flex items-center text-sm text-muted-foreground mt-1">
@@ -171,14 +261,21 @@ const GroupDetail = () => {
                   <Card key={balance.userId}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-medium">{balance.userName}</h3>
-                          <div className="text-sm text-muted-foreground">
-                            {balance.amount > 0 
-                              ? "is owed money" 
-                              : balance.amount < 0 
-                                ? "owes money" 
-                                : "is settled up"}
+                        <div className="flex items-center">
+                          <Avatar className="mr-2 h-8 w-8">
+                            <AvatarFallback className="bg-primary text-primary-foreground">
+                              {balance.userName.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-medium">{balance.userName}</h3>
+                            <div className="text-sm text-muted-foreground">
+                              {balance.amount > 0 
+                                ? "is owed money" 
+                                : balance.amount < 0 
+                                  ? "owes money" 
+                                  : "is settled up"}
+                            </div>
                           </div>
                         </div>
                         <div className={`text-lg font-bold ${
@@ -203,14 +300,92 @@ const GroupDetail = () => {
             )}
           </TabsContent>
           
+          <TabsContent value="settlements" className="space-y-4 mt-4">
+            {settlements.length > 0 ? (
+              <div className="space-y-4">
+                <p className="text-muted-foreground">
+                  These payment recommendations will help settle the group's balances
+                </p>
+                {settlements.map((settlement, index) => (
+                  <Card key={index}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-red-100 text-red-600">
+                              {settlement.from.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-green-100 text-green-600">
+                              {settlement.to.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="text-sm">
+                              <span className="font-medium">{settlement.from}</span> pays <span className="font-medium">{settlement.to}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="font-bold">${settlement.amount.toFixed(2)}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">Everyone is settled up!</p>
+              </Card>
+            )}
+          </TabsContent>
+          
           <TabsContent value="members" className="space-y-4 mt-4">
             {group.members.map((member) => (
               <Card key={member.id}>
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium">{member.name}</h3>
-                      <div className="text-sm text-muted-foreground">{member.email}</div>
+                    <div className="flex items-center">
+                      <Avatar className="mr-3 h-10 w-10">
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {member.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        {editingNickname === member.id ? (
+                          <div className="flex items-center">
+                            <Input 
+                              value={nickname}
+                              onChange={(e) => setNickname(e.target.value)}
+                              className="w-40 mr-2"
+                              autoFocus
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={saveNickname}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <h3 className="font-medium flex items-center">
+                            {member.name}
+                            {(isAdmin || member.id === currentUser?.id) && (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="ml-1 h-6 w-6" 
+                                onClick={() => startEditingNickname(member.id, member.name)}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </h3>
+                        )}
+                        <div className="text-sm text-muted-foreground">{member.email}</div>
+                      </div>
                     </div>
                     {member.id === group.createdBy && (
                       <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">

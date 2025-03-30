@@ -94,6 +94,7 @@ const Profile = () => {
     setIsLoading(true);
     
     try {
+      // Update the profile data without the updated_at field
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -101,7 +102,6 @@ const Profile = () => {
           display_name: values.displayName,
           birthday: values.birthday,
           bio: values.bio,
-          updated_at: new Date().toISOString(),
         })
         .eq('id', currentUser.id);
       

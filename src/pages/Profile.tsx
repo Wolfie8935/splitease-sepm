@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { User, Mail, Save, Cake, Camera, ChevronDown, Lock, Github } from 'lucide-react';
+import { User, Mail, Save, Cake, Camera, ChevronDown, Lock } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
@@ -226,29 +226,6 @@ const Profile = () => {
                   </Button>
                 </div>
               </CardHeader>
-            </Card>
-
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Connect Accounts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button 
-                  className="w-full flex items-center justify-center gap-2"
-                  variant="outline"
-                  onClick={() => {
-                    supabase.auth.signInWithOAuth({
-                      provider: 'github',
-                      options: {
-                        redirectTo: `${window.location.origin}/profile`,
-                      }
-                    });
-                  }}
-                >
-                  <Github className="h-4 w-4" />
-                  Connect GitHub
-                </Button>
-              </CardContent>
             </Card>
           </div>
 

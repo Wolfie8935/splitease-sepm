@@ -52,7 +52,7 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 animated-bg">
         <div>
           <h1 className="text-3xl font-bold">Welcome, {userName || 'User'}</h1>
           <p className="text-muted-foreground">Here's an overview of your expenses and groups</p>

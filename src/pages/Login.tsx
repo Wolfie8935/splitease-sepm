@@ -6,14 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, Github } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { DollarSign } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, loginWithGithub, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,16 +27,8 @@ const Login = () => {
     }
   };
 
-  const handleGithubLogin = async () => {
-    try {
-      await loginWithGithub();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to log in with GitHub');
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-primary/5 px-4 animated-bg">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <div className="bg-primary text-primary-foreground p-3 rounded-full">
@@ -89,25 +80,6 @@ const Login = () => {
 
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Log in'}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t"></span>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                </div>
-              </div>
-
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full flex items-center justify-center gap-2"
-                onClick={handleGithubLogin}
-              >
-                <Github className="h-4 w-4" />
-                GitHub
               </Button>
             </CardContent>
             

@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useToast } from "@/components/ui/use-toast";
@@ -55,6 +54,7 @@ interface DataContextType {
   getGroupExpenses: (groupId: string) => Expense[];
   getTotalSpent: () => number;
   isLoading: boolean;
+  deleteGroup: (groupId: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -66,7 +66,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load user's groups when authenticated
   useEffect(() => {
     if (!currentUser) {
       setGroups([]);
@@ -78,7 +77,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchUserGroups = async () => {
       setIsLoading(true);
       try {
-        // Fetch groups the user is a member of
         const { data: memberships, error: membershipError } = await supabase
           .from('group_members')
           .select('group_id')
@@ -89,7 +87,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (memberships && memberships.length > 0) {
           const groupIds = memberships.map(m => m.group_id);
           
-          // Fetch group details
           const { data: groupsData, error: groupsError } = await supabase
             .from('groups')
             .select('*')
@@ -98,7 +95,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (groupsError) throw groupsError;
 
           if (groupsData) {
-            // For each group, fetch its members
             const fetchedGroups: Group[] = [];
             
             for (const group of groupsData) {
@@ -112,7 +108,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (groupMembers) {
                 const memberIds = groupMembers.map(m => m.user_id);
                 
-                // Fetch member profiles
                 const { data: profiles, error: profilesError } = await supabase
                   .from('profiles')
                   .select('*')
@@ -136,7 +131,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setGroups(fetchedGroups);
             
-            // Fetch expenses for all groups
             const { data: expensesData, error: expensesError } = await supabase
               .from('expenses')
               .select('*')
@@ -148,7 +142,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const fetchedExpenses: Expense[] = [];
               
               for (const expense of expensesData) {
-                // Fetch splits for each expense
                 const { data: splitsData, error: splitsError } = await supabase
                   .from('expense_splits')
                   .select('*')
@@ -210,7 +203,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsLoading(true);
     try {
-      // Create the group
       const { data: groupData, error: groupError } = await supabase
         .from('groups')
         .insert({
@@ -225,7 +217,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const groupId = groupData.id;
 
-      // Add the current user as a member
       const { error: memberError } = await supabase
         .from('group_members')
         .insert({
@@ -235,11 +226,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (memberError) throw memberError;
 
-      // Add other members by email
       const uniqueEmails = [...new Set(memberEmails.filter(email => email.trim() !== ''))];
       
       if (uniqueEmails.length > 0) {
-        // Get user profiles by email
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
@@ -248,7 +237,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (profilesError) throw profilesError;
 
         if (profiles && profiles.length > 0) {
-          // Add members to the group
           const members = profiles.map(profile => ({
             group_id: groupId,
             user_id: profile.id
@@ -262,7 +250,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Fetch the complete group with members
       const { data: groupMembers, error: membersError } = await supabase
         .from('group_members')
         .select('user_id')
@@ -331,7 +318,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsLoading(true);
     try {
-      // Find the user by email
       const { data: userProfiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -345,7 +331,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const userToAdd = userProfiles[0];
       
-      // Add the user to the group
       const { error: memberError } = await supabase
         .from('group_members')
         .insert({
@@ -404,7 +389,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsLoading(true);
     try {
-      // Insert expense
       const { data: expenseData, error: expenseError } = await supabase
         .from('expenses')
         .insert({
@@ -443,7 +427,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("Invalid split type or missing custom splits");
       }
       
-      // Insert expense splits
       const { error: splitsError } = await supabase
         .from('expense_splits')
         .insert(splits);
@@ -545,6 +528,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return total;
   };
 
+  const deleteGroup = async (groupId: string): Promise<void> => {
+    if (!currentUser) throw new Error("You must be logged in to delete a group");
+    
+    const group = groups.find(g => g.id === groupId);
+    if (!group) throw new Error("Group not found");
+    
+    if (group.createdBy !== currentUser.id) {
+      throw new Error("Only the group creator can delete this group");
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('groups')
+        .delete()
+        .eq('id', groupId);
+
+      if (error) throw error;
+      
+      setGroups(prevGroups => prevGroups.filter(g => g.id !== groupId));
+      
+      setExpenses(prevExpenses => prevExpenses.filter(e => e.groupId !== groupId));
+      
+    } catch (error) {
+      toast({
+        title: "Failed to delete group",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     groups,
     expenses,
@@ -558,6 +576,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getGroupExpenses,
     getTotalSpent,
     isLoading,
+    deleteGroup,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

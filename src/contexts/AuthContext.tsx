@@ -1,8 +1,7 @@
-
-import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session, Provider } from '@supabase/supabase-js';
+import { Session, User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -88,8 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       toast({
-        title: "Signup successful",
-        description: "Welcome to SplitEase!",
+        title: "Check your email",
+        description: "Please verify your email address to continue",
       });
     } catch (error) {
       toast({

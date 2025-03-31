@@ -41,49 +41,65 @@ const App = () => (
                 
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <AppLayout>
+                      <Dashboard />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/groups" element={
                   <ProtectedRoute>
-                    <Groups />
+                    <AppLayout>
+                      <Groups />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/groups/new" element={
                   <ProtectedRoute>
-                    <CreateGroup />
+                    <AppLayout>
+                      <CreateGroup />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/groups/:groupId" element={
                   <ProtectedRoute>
-                    <GroupDetail />
+                    <AppLayout>
+                      <GroupDetail />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/groups/:groupId/edit" element={
                   <ProtectedRoute>
-                    <EditGroup />
+                    <AppLayout>
+                      <EditGroup />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/groups/:groupId/settle" element={
                   <ProtectedRoute>
-                    <SettleUp />
+                    <AppLayout>
+                      <SettleUp />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/analytics" element={
                   <ProtectedRoute>
-                    <Analytics />
+                    <AppLayout>
+                      <Analytics />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/profile" element={
                   <ProtectedRoute>
-                    <Profile />
+                    <AppLayout>
+                      <Profile />
+                    </AppLayout>
                   </ProtectedRoute>
                 } />
                 

@@ -25,6 +25,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import Footer from './Footer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -299,12 +300,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </aside>
         
-        {/* Main content */}
-        <main className="flex-1 p-4 sm:p-6 bg-background overflow-y-auto">
-          <div className="mx-auto max-w-5xl">
-            {children}
-          </div>
-        </main>
+        {/* Main content and Footer */}
+        <div className="flex-1 flex flex-col min-h-screen">
+          <main className="flex-1 p-4 sm:p-6 bg-background">
+            <div className="mx-auto max-w-5xl">
+              {children}
+            </div>
+          </main>
+          <Footer />
+        </div>
       </div>
     </div>
   );

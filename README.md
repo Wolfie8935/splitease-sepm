@@ -1,69 +1,99 @@
-# Welcome to your Lovable project
+# SplitEase
 
-## Project info
+<div align="center">
+  <img src="public/favicon.svg" alt="SplitEase Logo" width="100" height="100">
+  <h3>Split Expenses with Ease</h3>
+</div>
 
-**URL**: https://lovable.dev/projects/445fd2ef-2ef4-4a6e-9dc3-0ced775f3cf5
+## 🌟 Overview
 
-## How can I edit this code?
+SplitEase is a modern web application designed to simplify group expense management. Whether you're traveling with friends, sharing a household, or organizing group events, SplitEase makes it effortless to track and settle shared expenses.
 
-There are several ways of editing your application.
+## ✨ Features
 
-**Use Lovable**
+- **Group Management**
+  - Create and manage multiple expense groups
+  - Add and remove group members
+  - Track group-specific expenses
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/445fd2ef-2ef4-4a6e-9dc3-0ced775f3cf5) and start prompting.
+- **Expense Tracking**
+  - Add and categorize expenses
+  - Split bills equally or custom amounts
+  - View expense history and summaries
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Smart Settlement**
+  - Automatic calculation of who owes whom
+  - Simplified debt resolution suggestions
+  - Easy settlement tracking
 
-**Use your preferred IDE**
+- **User-Friendly Interface**
+  - Clean and intuitive design
+  - Mobile-responsive layout
+  - Real-time updates
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v16 or higher)
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository
+```bash
+git clone https://github.com/amangoel185/splitease-sepm.git
+cd splitease-sepm
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-**Use GitHub Codespaces**
+4. Open [http://localhost:5173](http://localhost:5173) in your browser
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🛠️ Built With
 
-## What technologies are used for this project?
+- [React](https://reactjs.org/) - Frontend framework
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
+- [Vite](https://vitejs.dev/) - Build tool
 
-This project is built with .
+## 📱 Live Demo
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Visit [https://splitease-sepm.netlify.app](https://splitease-sepm.netlify.app) to see SplitEase in action!
 
-## How can I deploy this project?
+## 👥 Contributors
 
-Simply open [Lovable](https://lovable.dev/projects/445fd2ef-2ef4-4a6e-9dc3-0ced775f3cf5) and click on Share -> Publish.
+- [Aman Goel](https://github.com/amangoel185)
+- [Rishaan Yadav](https://github.com/rishaanyadav)
+- [Jayanth Nair](https://github.com/jayanthnair)
 
-## I want to use a custom domain - is that possible?
+## 📄 License
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/amangoel185/splitease-sepm/issues).
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📞 Support
+
+Having trouble? [Create an issue](https://github.com/amangoel185/splitease-sepm/issues/new) or contact the maintainers.

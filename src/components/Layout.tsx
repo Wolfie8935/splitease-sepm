@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -24,8 +25,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import Footer from './Footer';
-import LoadingScreen from './LoadingScreen';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -37,15 +36,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -59,10 +49,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   if (!currentUser) {
     navigate('/login');
     return null;
-  }
-
-  if (loading) {
-    return <LoadingScreen />;
   }
 
   const userInitial = currentUser.email ? currentUser.email.charAt(0).toUpperCase() : 'U';
@@ -313,15 +299,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </aside>
         
-        {/* Main content and Footer */}
-        <div className="flex-1 flex flex-col min-h-screen">
-          <main className="flex-1 p-4 sm:p-6 bg-background">
-            <div className="mx-auto max-w-5xl">
-              {children}
-            </div>
-          </main>
-          <Footer />
-        </div>
+        {/* Main content */}
+        <main className="flex-1 p-4 sm:p-6 bg-background overflow-y-auto">
+          <div className="mx-auto max-w-5xl">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

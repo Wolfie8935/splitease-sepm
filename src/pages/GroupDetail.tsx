@@ -1,33 +1,29 @@
-
-import React, { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useData, Balance } from '@/contexts/DataContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Plus, 
-  DollarSign, 
-  Users, 
-  ArrowLeft, 
-  Clock,
-  User,
-  UserPlus,
-  ArrowRightLeft,
-  Edit,
-  Check
-} from 'lucide-react';
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback
-} from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import Layout from '@/components/Layout';
 import AddExpenseForm from '@/components/AddExpenseForm';
 import AddMemberForm from '@/components/AddMemberForm';
+import {
+    Avatar,
+    AvatarFallback
+} from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
+import {
+    ArrowLeft,
+    ArrowRightLeft,
+    Check,
+    Clock,
+    DollarSign,
+    Edit,
+    Plus,
+    UserPlus,
+    Users
+} from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -127,279 +123,277 @@ const GroupDetail = () => {
   const settlements = calculateSettlements();
 
   return (
-    <Layout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/groups')}>
-            <ArrowLeft className="h-4 w-4" />
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/groups')}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-3xl font-bold">{group.name}</h1>
+        {isAdmin && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="ml-2"
+            onClick={() => navigate(`/groups/${groupId}/edit`)}
+          >
+            <Edit className="h-4 w-4" />
           </Button>
-          <h1 className="text-3xl font-bold">{group.name}</h1>
-          {isAdmin && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="ml-2"
-              onClick={() => navigate(`/groups/${groupId}/edit`)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        )}
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Your Balance</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-2">
-              <DollarSign className={userBalance && userBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
-              <span className="text-2xl font-bold">
-                {userBalance && userBalance.amount >= 0 ? '+' : ''}
-                ${userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00'}
-              </span>
-            </CardContent>
-          </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Your Balance</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-2">
+            <DollarSign className={userBalance && userBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
+            <span className="text-2xl font-bold">
+              {userBalance && userBalance.amount >= 0 ? '+' : ''}
+              ${userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00'}
+            </span>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-2">
-              <DollarSign className="text-primary" />
-              <span className="text-2xl font-bold">
-                ${expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)}
-              </span>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-2">
+            <DollarSign className="text-primary" />
+            <span className="text-2xl font-bold">
+              ${expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)}
+            </span>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Members</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-2">
-              <Users className="text-primary" />
-              <span className="text-2xl font-bold">{group.members.length}</span>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Members</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-2">
+            <Users className="text-primary" />
+            <span className="text-2xl font-bold">{group.members.length}</span>
+          </CardContent>
+        </Card>
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setIsExpenseModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => setIsExpenseModalOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Expense
+        </Button>
+        
+        {isAdmin && (
+          <Button variant="outline" onClick={() => setIsMemberModalOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Member
           </Button>
-          
-          {isAdmin && (
-            <Button variant="outline" onClick={() => setIsMemberModalOpen(true)}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add Member
-            </Button>
-          )}
-          
-          {userBalance && userBalance.amount < 0 && (
-            <Button variant="outline" onClick={() => navigate(`/groups/${groupId}/settle`)}>
-              <ArrowRightLeft className="mr-2 h-4 w-4" />
-              Settle Up
-            </Button>
-          )}
-        </div>
+        )}
+        
+        {userBalance && userBalance.amount < 0 && (
+          <Button variant="outline" onClick={() => navigate(`/groups/${groupId}/settle`)}>
+            <ArrowRightLeft className="mr-2 h-4 w-4" />
+            Settle Up
+          </Button>
+        )}
+      </div>
 
-        <Tabs defaultValue="expenses">
-          <TabsList className="w-full md:w-auto">
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="balances">Balances</TabsTrigger>
-            <TabsTrigger value="settlements">Settle Up</TabsTrigger>
-            <TabsTrigger value="members">Members</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="expenses" className="space-y-4 mt-4">
-            {expenses.length > 0 ? (
-              <div className="space-y-4">
-                {expenses.map((expense) => {
-                  const paidByUser = group.members.find(m => m.id === expense.paidBy);
-                  return (
-                    <Card key={expense.id}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium">{expense.description}</h3>
-                            <div className="flex items-center text-sm text-muted-foreground mt-1">
-                              <Avatar className="mr-2 h-5 w-5">
-                                <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                                  {paidByUser?.name.charAt(0) || '?'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>Paid by {paidByUser?.name || 'Unknown'}</span>
-                            </div>
-                            <div className="flex items-center text-sm text-muted-foreground mt-1">
-                              <Clock className="mr-1 h-3 w-3" />
-                              <span>{new Date(expense.date).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <div className="text-lg font-bold">${expense.amount.toFixed(2)}</div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            ) : (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground mb-4">No expenses yet</p>
-                <Button onClick={() => setIsExpenseModalOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add First Expense
-                </Button>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="balances" className="space-y-4 mt-4">
-            {balances.length > 0 ? (
-              <div className="space-y-4">
-                {balances.map((balance) => (
-                  <Card key={balance.userId}>
+      <Tabs defaultValue="expenses">
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="expenses">Expenses</TabsTrigger>
+          <TabsTrigger value="balances">Balances</TabsTrigger>
+          <TabsTrigger value="settlements">Settle Up</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="expenses" className="space-y-4 mt-4">
+          {expenses.length > 0 ? (
+            <div className="space-y-4">
+              {expenses.map((expense) => {
+                const paidByUser = group.members.find(m => m.id === expense.paidBy);
+                return (
+                  <Card key={expense.id}>
                     <CardContent className="p-4">
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium">{expense.description}</h3>
+                          <div className="flex items-center text-sm text-muted-foreground mt-1">
+                            <Avatar className="mr-2 h-5 w-5">
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                {paidByUser?.name.charAt(0) || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>Paid by {paidByUser?.name || 'Unknown'}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground mt-1">
+                            <Clock className="mr-1 h-3 w-3" />
+                            <span>{new Date(expense.date).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="text-lg font-bold">${expense.amount.toFixed(2)}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground mb-4">No expenses yet</p>
+              <Button onClick={() => setIsExpenseModalOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add First Expense
+              </Button>
+            </Card>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="balances" className="space-y-4 mt-4">
+          {balances.length > 0 ? (
+            <div className="space-y-4">
+              {balances.map((balance) => (
+                <Card key={balance.userId}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <Avatar className="mr-2 h-8 w-8">
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {balance.userName.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium">{balance.userName}</h3>
+                          <div className="text-sm text-muted-foreground">
+                            {balance.amount > 0 
+                              ? "is owed money" 
+                              : balance.amount < 0 
+                                ? "owes money" 
+                                : "is settled up"}
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`text-lg font-bold ${
+                        balance.amount > 0 
+                          ? "text-green-500" 
+                          : balance.amount < 0 
+                            ? "text-red-500" 
+                            : ""
+                      }`}>
+                        {balance.amount > 0 ? '+' : ''}
+                        ${balance.amount.toFixed(2)}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">No balance information available</p>
+            </Card>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="settlements" className="space-y-4 mt-4">
+          {settlements.length > 0 ? (
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                These payment recommendations will help settle the group's balances
+              </p>
+              {settlements.map((settlement, index) => (
+                <Card key={index}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-red-100 text-red-600">
+                            {settlement.from.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-green-100 text-green-600">
+                            {settlement.to.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="text-sm">
+                            <span className="font-medium">{settlement.from}</span> pays <span className="font-medium">{settlement.to}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="font-bold">${settlement.amount.toFixed(2)}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Everyone is settled up!</p>
+            </Card>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="members" className="space-y-4 mt-4">
+          {group.members.map((member) => (
+            <Card key={member.id}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <Avatar className="mr-3 h-10 w-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {member.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      {editingNickname === member.id ? (
                         <div className="flex items-center">
-                          <Avatar className="mr-2 h-8 w-8">
-                            <AvatarFallback className="bg-primary text-primary-foreground">
-                              {balance.userName.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="font-medium">{balance.userName}</h3>
-                            <div className="text-sm text-muted-foreground">
-                              {balance.amount > 0 
-                                ? "is owed money" 
-                                : balance.amount < 0 
-                                  ? "owes money" 
-                                  : "is settled up"}
-                            </div>
-                          </div>
+                          <Input 
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            className="w-40 mr-2"
+                            autoFocus
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={saveNickname}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <div className={`text-lg font-bold ${
-                          balance.amount > 0 
-                            ? "text-green-500" 
-                            : balance.amount < 0 
-                              ? "text-red-500" 
-                              : ""
-                        }`}>
-                          {balance.amount > 0 ? '+' : ''}
-                          ${balance.amount.toFixed(2)}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">No balance information available</p>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="settlements" className="space-y-4 mt-4">
-            {settlements.length > 0 ? (
-              <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  These payment recommendations will help settle the group's balances
-                </p>
-                {settlements.map((settlement, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-red-100 text-red-600">
-                              {settlement.from.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-green-100 text-green-600">
-                              {settlement.to.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-sm">
-                              <span className="font-medium">{settlement.from}</span> pays <span className="font-medium">{settlement.to}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="font-bold">${settlement.amount.toFixed(2)}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">Everyone is settled up!</p>
-              </Card>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="members" className="space-y-4 mt-4">
-            {group.members.map((member) => (
-              <Card key={member.id}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <Avatar className="mr-3 h-10 w-10">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {member.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        {editingNickname === member.id ? (
-                          <div className="flex items-center">
-                            <Input 
-                              value={nickname}
-                              onChange={(e) => setNickname(e.target.value)}
-                              className="w-40 mr-2"
-                              autoFocus
-                            />
+                      ) : (
+                        <h3 className="font-medium flex items-center">
+                          {member.name}
+                          {(isAdmin || member.id === currentUser?.id) && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={saveNickname}
+                              className="ml-1 h-6 w-6" 
+                              onClick={() => startEditingNickname(member.id, member.name)}
                             >
-                              <Check className="h-4 w-4" />
+                              <Edit className="h-3 w-3" />
                             </Button>
-                          </div>
-                        ) : (
-                          <h3 className="font-medium flex items-center">
-                            {member.name}
-                            {(isAdmin || member.id === currentUser?.id) && (
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="ml-1 h-6 w-6" 
-                                onClick={() => startEditingNickname(member.id, member.name)}
-                              >
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </h3>
-                        )}
-                        <div className="text-sm text-muted-foreground">{member.email}</div>
-                      </div>
+                          )}
+                        </h3>
+                      )}
+                      <div className="text-sm text-muted-foreground">{member.email}</div>
                     </div>
-                    {member.id === group.createdBy && (
-                      <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        Group Admin
-                      </div>
-                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-        </Tabs>
-      </div>
-      
+                  {member.id === group.createdBy && (
+                    <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      Group Admin
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+      </Tabs>
+
       <Dialog open={isExpenseModalOpen} onOpenChange={setIsExpenseModalOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -425,7 +419,7 @@ const GroupDetail = () => {
           />
         </DialogContent>
       </Dialog>
-    </Layout>
+    </div>
   );
 };
 

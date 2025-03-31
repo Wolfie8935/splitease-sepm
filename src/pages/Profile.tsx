@@ -1,20 +1,18 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { User, Mail, Save, Cake, Camera, ChevronDown, Lock } from 'lucide-react';
-import AppLayout from '@/components/AppLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Cake, Camera, Lock, Save, User } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { z } from 'zod';
 
 const profileSchema = z.object({
   name: z.string().min(2, {
@@ -183,216 +181,214 @@ const Profile = () => {
   };
 
   return (
-    <AppLayout>
-      <div className="container max-w-4xl mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
-        
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="w-full md:w-1/3">
-            <Card>
-              <CardHeader className="flex flex-col items-center text-center">
-                <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                  <input 
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                    disabled={uploadingAvatar}
-                  />
-                  <Avatar className="h-24 w-24 mx-auto">
-                    {avatarUrl ? (
-                      <AvatarImage src={avatarUrl} alt={profileData?.name || 'User'} />
-                    ) : (
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                        {profileData?.name ? profileData.name.charAt(0).toUpperCase() : 'U'}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera className="h-6 w-6 text-white" />
-                  </div>
+    <div className="container max-w-4xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+      
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="w-full md:w-1/3">
+          <Card>
+            <CardHeader className="flex flex-col items-center text-center">
+              <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                  disabled={uploadingAvatar}
+                />
+                <Avatar className="h-24 w-24 mx-auto">
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt={profileData?.name || 'User'} />
+                  ) : (
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+                      {profileData?.name ? profileData.name.charAt(0).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="h-6 w-6 text-white" />
                 </div>
-                <CardTitle className="mt-4">{profileData?.name || 'User'}</CardTitle>
-                <CardDescription>{currentUser?.email}</CardDescription>
-                
-                <div className="w-full mt-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full text-sm" 
-                    onClick={() => logout()}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
+              </div>
+              <CardTitle className="mt-4">{profileData?.name || 'User'}</CardTitle>
+              <CardDescription>{currentUser?.email}</CardDescription>
+              
+              <div className="w-full mt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full text-sm" 
+                  onClick={() => logout()}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
 
-          <div className="w-full md:w-2/3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>
-                  Manage your account and personal information
-                </CardDescription>
-              </CardHeader>
+        <div className="w-full md:w-2/3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Settings</CardTitle>
+              <CardDescription>
+                Manage your account and personal information
+              </CardDescription>
+            </CardHeader>
 
-              <Tabs defaultValue="personal">
-                <CardContent>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="personal">Personal Info</TabsTrigger>
-                    <TabsTrigger value="password">Password</TabsTrigger>
-                  </TabsList>
-                </CardContent>
+            <Tabs defaultValue="personal">
+              <CardContent>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                  <TabsTrigger value="password">Password</TabsTrigger>
+                </TabsList>
+              </CardContent>
 
-                <TabsContent value="personal">
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
-                      <CardContent className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name</FormLabel>
-                              <div className="flex items-center space-x-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <FormControl>
-                                  <Input {...field} placeholder="Your full name" />
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="displayName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Display Name</FormLabel>
-                              <div className="flex items-center space-x-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <FormControl>
-                                  <Input {...field} placeholder="Your display name" />
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="birthday"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Birthday</FormLabel>
-                              <div className="flex items-center space-x-2">
-                                <Cake className="h-4 w-4 text-muted-foreground" />
-                                <FormControl>
-                                  <Input 
-                                    type="date" 
-                                    {...field}
-                                  />
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="bio"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Bio</FormLabel>
+              <TabsContent value="personal">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <CardContent className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <div className="flex items-center space-x-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
                               <FormControl>
-                                <textarea
-                                  className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                  placeholder="Tell us a bit about yourself"
+                                <Input {...field} placeholder="Your full name" />
+                              </FormControl>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="displayName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Display Name</FormLabel>
+                            <div className="flex items-center space-x-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <FormControl>
+                                <Input {...field} placeholder="Your display name" />
+                              </FormControl>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="birthday"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Birthday</FormLabel>
+                            <div className="flex items-center space-x-2">
+                              <Cake className="h-4 w-4 text-muted-foreground" />
+                              <FormControl>
+                                <Input 
+                                  type="date" 
                                   {...field}
                                 />
                               </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </CardContent>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                      <CardFooter>
-                        <Button 
-                          type="submit" 
-                          disabled={isLoading}
-                          className="ml-auto"
-                        >
-                          {isLoading ? 'Saving...' : (
-                            <>
-                              <Save className="mr-2 h-4 w-4" />
-                              Save Changes
-                            </>
-                          )}
-                        </Button>
-                      </CardFooter>
-                    </form>
-                  </Form>
-                </TabsContent>
+                      <FormField
+                        control={form.control}
+                        name="bio"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Bio</FormLabel>
+                            <FormControl>
+                              <textarea
+                                className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                placeholder="Tell us a bit about yourself"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
 
-                <TabsContent value="password">
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="current-password">Current Password</Label>
-                      <div className="flex items-center space-x-2">
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="current-password" 
-                          type="password"
-                          placeholder="••••••••"
-                        />
-                      </div>
+                    <CardFooter>
+                      <Button 
+                        type="submit" 
+                        disabled={isLoading}
+                        className="ml-auto"
+                      >
+                        {isLoading ? 'Saving...' : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save Changes
+                          </>
+                        )}
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </Form>
+              </TabsContent>
+
+              <TabsContent value="password">
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <div className="flex items-center space-x-2">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="current-password" 
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="new-password">New Password</Label>
-                      <div className="flex items-center space-x-2">
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="new-password" 
-                          type="password"
-                          placeholder="••••••••"
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <div className="flex items-center space-x-2">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="new-password" 
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirm New Password</Label>
-                      <div className="flex items-center space-x-2">
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="confirm-password" 
-                          type="password"
-                          placeholder="••••••••"
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <div className="flex items-center space-x-2">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="confirm-password" 
+                        type="password"
+                        placeholder="••••••••"
+                      />
                     </div>
-                  </CardContent>
+                  </div>
+                </CardContent>
 
-                  <CardFooter>
-                    <Button className="ml-auto">
-                      <Save className="mr-2 h-4 w-4" />
-                      Update Password
-                    </Button>
-                  </CardFooter>
-                </TabsContent>
-              </Tabs>
-            </Card>
-          </div>
+                <CardFooter>
+                  <Button className="ml-auto">
+                    <Save className="mr-2 h-4 w-4" />
+                    Update Password
+                  </Button>
+                </CardFooter>
+              </TabsContent>
+            </Tabs>
+          </Card>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 };
 

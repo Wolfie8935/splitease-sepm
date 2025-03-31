@@ -1,15 +1,13 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useData } from '@/contexts/DataContext';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { X, PlusCircle } from 'lucide-react';
-import Layout from '@/components/Layout';
+import { useData } from '@/contexts/DataContext';
 import { supabase } from '@/integrations/supabase/client';
+import { PlusCircle, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateGroup = () => {
   const [name, setName] = useState('');
@@ -85,95 +83,93 @@ const CreateGroup = () => {
   };
 
   return (
-    <Layout>
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Create a New Group</h1>
-        
-        <Card>
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle>Group Details</CardTitle>
-              <CardDescription>
-                Fill in the information below to create a new expense sharing group
-              </CardDescription>
-            </CardHeader>
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Create a New Group</h1>
+      
+      <Card>
+        <form onSubmit={handleSubmit}>
+          <CardHeader>
+            <CardTitle>Group Details</CardTitle>
+            <CardDescription>
+              Fill in the information below to create a new expense sharing group
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm">
+                {error}
+              </div>
+            )}
             
-            <CardContent className="space-y-4">
-              {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-md text-sm">
-                  {error}
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="groupName">Group Name</Label>
+              <Input
+                id="groupName"
+                placeholder="e.g., Roommates, Trip to Paris"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Members (by Email)</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Add the email addresses of people you want to include in this group
+              </p>
               
               <div className="space-y-2">
-                <Label htmlFor="groupName">Group Name</Label>
-                <Input
-                  id="groupName"
-                  placeholder="e.g., Roommates, Trip to Paris"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                {memberEmails.map((email, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Input
+                      placeholder="friend@example.com"
+                      value={email}
+                      onChange={(e) => handleMemberEmailChange(index, e.target.value)}
+                    />
+                    {memberEmails.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveMember(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
               
-              <div className="space-y-2">
-                <Label>Members (by Email)</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Add the email addresses of people you want to include in this group
-                </p>
-                
-                <div className="space-y-2">
-                  {memberEmails.map((email, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <Input
-                        placeholder="friend@example.com"
-                        value={email}
-                        onChange={(e) => handleMemberEmailChange(index, e.target.value)}
-                      />
-                      {memberEmails.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveMember(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                  onClick={handleAddMember}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Another Member
-                </Button>
-              </div>
-            </CardContent>
-            
-            <CardFooter className="flex justify-between">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => navigate(-1)} 
-                disabled={isLoading}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={handleAddMember}
               >
-                Cancel
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Another Member
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create Group'}
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
-    </Layout>
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex justify-between">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => navigate(-1)} 
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Creating...' : 'Create Group'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 };
 

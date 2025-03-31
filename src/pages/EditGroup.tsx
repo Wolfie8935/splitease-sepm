@@ -1,25 +1,23 @@
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useData } from '@/contexts/DataContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
-import { Loader2, X, User, UserPlus } from 'lucide-react';
-import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, UserPlus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
+import * as z from 'zod';
 
 // Form schema for group editing
 const formSchema = z.object({
@@ -126,104 +124,102 @@ const EditGroup = () => {
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Edit Group</h1>
-          <p className="text-muted-foreground">Update your group details and manage members</p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Group Details</CardTitle>
-              <CardDescription>Update the basic information for your group</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Group Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter group name"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="ml-auto"
-                    >
-                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save Changes
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Group Members</CardTitle>
-              <CardDescription>Add or remove members from your group</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form onSubmit={handleAddMember} className="flex space-x-2">
-                <Input
-                  type="email"
-                  placeholder="Enter email to add member"
-                  value={newMemberEmail}
-                  onChange={(e) => setNewMemberEmail(e.target.value)}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isAddingMember}>
-                  {isAddingMember ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-                </Button>
-              </form>
-
-              <div className="space-y-2 mt-4">
-                <h3 className="text-sm font-medium">Current Members</h3>
-                <div className="space-y-2">
-                  {group.members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-2 rounded-md border bg-card"
-                    >
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs mr-2">
-                          {member.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.email}</p>
-                        </div>
-                      </div>
-                      {member.id === group.createdBy && (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                          Admin
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Edit Group</h1>
+        <p className="text-muted-foreground">Update your group details and manage members</p>
       </div>
-    </Layout>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Group Details</CardTitle>
+            <CardDescription>Update the basic information for your group</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Group Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter group name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="ml-auto"
+                  >
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Group Members</CardTitle>
+            <CardDescription>Add or remove members from your group</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleAddMember} className="flex space-x-2">
+              <Input
+                type="email"
+                placeholder="Enter email to add member"
+                value={newMemberEmail}
+                onChange={(e) => setNewMemberEmail(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isAddingMember}>
+                {isAddingMember ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+              </Button>
+            </form>
+
+            <div className="space-y-2 mt-4">
+              <h3 className="text-sm font-medium">Current Members</h3>
+              <div className="space-y-2">
+                {group.members.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-2 rounded-md border bg-card"
+                  >
+                    <div className="flex items-center">
+                      <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs mr-2">
+                        {member.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.email}</p>
+                      </div>
+                    </div>
+                    {member.id === group.createdBy && (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 

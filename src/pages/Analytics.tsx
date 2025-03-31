@@ -9,13 +9,13 @@ import {
   Bar, 
   Pie, 
   Cell, 
-  ResponsiveContainer, 
+  ResponsiveContainer,  
   XAxis, 
   YAxis, 
   Tooltip, 
   Legend 
 } from 'recharts';
-import Layout from '@/components/Layout';
+// import Layout from '@/components/Layout';
 
 const Analytics = () => {
   const { 
@@ -59,7 +59,7 @@ const Analytics = () => {
   const COLORS = ['#38B2AC', '#4FD1CB', '#2C8A86', '#68D391', '#9AE6B4', '#48BB78'];
 
   return (
-    <Layout>
+    // <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Analytics</h1>
@@ -221,7 +221,7 @@ const Analytics = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    // </Layout>
   );
 };
 

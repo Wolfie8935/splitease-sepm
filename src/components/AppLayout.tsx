@@ -5,14 +5,14 @@ import Layout from './Layout';
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Layout>
+    <Layout>
+      <div className="flex flex-col min-h-[calc(100vh-6rem)]">
         <div className="flex-grow">
           {children}
         </div>
-      </Layout>
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </Layout>
   );
 };
 

@@ -20,6 +20,7 @@ import {
   User, 
   Menu, 
   X,
+  Settings,
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useIsMobile } from '@/hooks/use-mobile';

@@ -14,11 +14,100 @@
   }
 }
 
-/* Custom cursor styles */
-body {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>') 0 0, auto;
+/* Chart color customizations */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  @apply stroke-border/50;
 }
 
-a, button, input, select, textarea, [role="button"] {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>') 8 8, pointer;
+.recharts-cartesian-axis-tick-value {
+  @apply fill-muted-foreground text-xs;
+}
+
+.recharts-tooltip-wrapper {
+  @apply !opacity-100 !pointer-events-auto;
+}
+
+.recharts-default-tooltip {
+  @apply bg-card border border-border shadow-md rounded-md !px-3 !py-2;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .recharts-wrapper {
+    @apply !mx-auto;
+  }
+  
+  .recharts-surface {
+    @apply !overflow-visible;
+  }
+}
+
+/* Animated Background */
+.animated-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  animation: bgAnimation 15s ease infinite alternate;
+}
+
+.dark .animated-bg::before {
+  background: linear-gradient(125deg, rgba(30, 41, 59, 0.3) 0%, rgba(30, 41, 59, 0.1) 100%);
+}
+
+.animated-bg::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: radial-gradient(circle, rgba(196, 224, 229, 0.1) 10%, transparent 10.5%),
+                    radial-gradient(circle, rgba(196, 224, 229, 0.1) 10%, transparent 10.5%);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  z-index: -1;
+  opacity: 0.5;
+  animation: patternMove 40s linear infinite;
+}
+
+.dark .animated-bg::after {
+  background-image: radial-gradient(circle, rgba(96, 165, 250, 0.1) 10%, transparent 10.5%),
+                    radial-gradient(circle, rgba(96, 165, 250, 0.1) 10%, transparent 10.5%);
+}
+
+@keyframes bgAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes patternMove {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Add animated background to main app container */
+#root {
+  @apply animated-bg;
 }

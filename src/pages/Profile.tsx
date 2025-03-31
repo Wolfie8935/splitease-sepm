@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 import { User, Mail, Save, Cake, Camera, ChevronDown, Lock } from 'lucide-react';
-// import AppLayout from '@/components/AppLayout';
+import AppLayout from '@/components/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -183,7 +183,7 @@ const Profile = () => {
   };
 
   return (
-    // <AppLayout>
+    <AppLayout>
       <div className="container max-w-4xl mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
         
@@ -392,7 +392,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    // </AppLayout>
+    </AppLayout>
   );
 };
 

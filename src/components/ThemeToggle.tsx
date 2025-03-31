@@ -3,9 +3,11 @@ import React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/use-theme';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const isMobile = useIsMobile();
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');

@@ -15,7 +15,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import AppLayout from '@/components/AppLayout';
 import GroupList from '@/components/groups/GroupList';
 import EmptyGroupState from '@/components/groups/EmptyGroupState';
 import { useGroupDeletion } from '@/hooks/useGroupDeletion';
@@ -34,33 +33,31 @@ const Groups = () => {
   } = useGroupDeletion();
 
   return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Your Groups</h1>
-            <p className="text-muted-foreground">Manage and view all your expense groups</p>
-          </div>
-          <Button asChild>
-            <Link to="/groups/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Group
-            </Link>
-          </Button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Your Groups</h1>
+          <p className="text-muted-foreground">Manage and view all your expense groups</p>
         </div>
-
-        {isLoading ? (
-          <div className="text-center py-8">Loading your groups...</div>
-        ) : groups.length > 0 ? (
-          <GroupList 
-            groups={groups} 
-            currentUserId={currentUser?.id} 
-            onDeleteClick={openDeleteDialog} 
-          />
-        ) : (
-          <EmptyGroupState />
-        )}
+        <Button asChild>
+          <Link to="/groups/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Group
+          </Link>
+        </Button>
       </div>
+
+      {isLoading ? (
+        <div className="text-center py-8">Loading your groups...</div>
+      ) : groups.length > 0 ? (
+        <GroupList 
+          groups={groups} 
+          currentUserId={currentUser?.id} 
+          onDeleteClick={openDeleteDialog} 
+        />
+      ) : (
+        <EmptyGroupState />
+      )}
 
       <AlertDialog 
         open={deleteDialogOpen} 
@@ -86,7 +83,7 @@ const Groups = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AppLayout>
+    </div>
   );
 };
 

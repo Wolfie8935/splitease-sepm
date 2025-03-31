@@ -78,7 +78,7 @@ Visit [https://splitease-sepm.netlify.app](https://splitease-sepm.netlify.app) t
 
 - [Aman Goel](https://github.com/amangoel185)
 - [Rishaan Yadav](https://github.com/rishaan08)
-- [Jayanth Nair](https://github.com/jaynair17)
+- [Jayanth Nair](https://github.com/jay16nair)
 
 ## 📄 License
 

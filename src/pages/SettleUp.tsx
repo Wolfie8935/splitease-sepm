@@ -6,12 +6,13 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
 import { ArrowLeft, Check, DollarSign } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const SettleUp = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { currentUser } = useAuth();
   const { getGroupById, getGroupBalances, addExpense } = useData();
   const { toast } = useToast();
@@ -40,6 +41,20 @@ const SettleUp = () => {
     // We want to show users that the current user owes money to (i.e., users with positive balances)
     return currentUserBalance && currentUserBalance.amount < 0 && balance.amount > 0;
   });
+
+  // Check for URL parameters and set values if provided
+  useEffect(() => {
+    const toUserId = searchParams.get('to');
+    const amount = searchParams.get('amount');
+    
+    if (toUserId) {
+      setSelectedUser(toUserId);
+    }
+    
+    if (amount) {
+      setSettledAmount(parseFloat(amount));
+    }
+  }, [searchParams]);
 
   const handleSettleUp = async () => {
     if (!settledAmount || settledAmount <= 0 || !selectedUser || !currentUser) {

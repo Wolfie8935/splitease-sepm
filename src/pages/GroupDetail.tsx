@@ -323,7 +323,17 @@ const GroupDetail = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="font-bold">${settlement.amount.toFixed(2)}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="font-bold">${settlement.amount.toFixed(2)}</div>
+                        {settlement.fromId === currentUser?.id && (
+                          <Button 
+                            size="sm" 
+                            onClick={() => navigate(`/groups/${groupId}/settle?to=${settlement.toId}&amount=${settlement.amount}`)}
+                          >
+                            Settle
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

@@ -4,7 +4,7 @@
   <img src="public/favicon.svg" alt="SplitEase Logo" width="100" height="100">
   <h3>Split Expenses with Ease</h3>
 
-  <h4>URL - "splitease-sepm.netlify.app"</h4>
+  <h4>URL - https://splitease-sepm.netlify.app</h4>
 </div>
 
 ## 🌟 Overview
@@ -44,15 +44,15 @@ SplitEase is a modern web application designed to simplify group expense managem
 
 1. Clone the repository
 ```bash
-git clone https://github.com/amangoel185/splitease-sepm.git
+git clone https://github.com/wolfie8935/splitease-sepm.git
 cd splitease-sepm
 ```
 
 2. Install dependencies
 ```bash
-npm install
+npm i
 # or
-yarn install
+yarn i
 ```
 
 3. Start the development server
@@ -61,8 +61,6 @@ npm run dev
 # or
 yarn dev
 ```
-
-4. Open [http://localhost:5173](http://localhost:5173) in your browser
 
 ## 🛠️ Built With
 

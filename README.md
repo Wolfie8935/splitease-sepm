@@ -3,6 +3,8 @@
 <div align="center">
   <img src="public/favicon.svg" alt="SplitEase Logo" width="100" height="100">
   <h3>Split Expenses with Ease</h3>
+
+  <h4>URL - "splitease-sepm.netlify.app"</h4>
 </div>
 
 ## 🌟 Overview

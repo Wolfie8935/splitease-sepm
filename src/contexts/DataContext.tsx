@@ -1,7 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useAuth } from './AuthContext';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
 
 export interface Expense {
   id: string;
@@ -39,6 +39,7 @@ interface DataContextType {
   expenses: Expense[];
   createGroup: (name: string, memberEmails: string[]) => Promise<Group>;
   addMemberToGroup: (groupId: string, memberEmail: string) => Promise<void>;
+  removeMemberFromGroup: (groupId: string, memberId: string) => Promise<void>;
   addExpense: (
     groupId: string, 
     description: string, 
@@ -374,6 +375,58 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const removeMemberFromGroup = async (groupId: string, memberId: string): Promise<void> => {
+    if (!currentUser) throw new Error("You must be logged in to remove a member");
+    
+    const group = groups.find(g => g.id === groupId);
+    if (!group) throw new Error("Group not found");
+    
+    if (group.createdBy !== currentUser.id) {
+      throw new Error("Only the group creator can remove members");
+    }
+    
+    if (memberId === group.createdBy) {
+      throw new Error("Cannot remove the group creator");
+    }
+    
+    setIsLoading(true);
+    try {
+      // Delete the member from the group_members table
+      const { error } = await supabase
+        .from('group_members')
+        .delete()
+        .eq('group_id', groupId)
+        .eq('user_id', memberId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setGroups(prevGroups => prevGroups.map(g => {
+        if (g.id === groupId) {
+          return {
+            ...g,
+            members: g.members.filter(m => m.id !== memberId)
+          };
+        }
+        return g;
+      }));
+      
+      toast({
+        title: "Member removed",
+        description: "Member has been removed from the group",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to remove member",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const addExpense = async (
     groupId: string, 
     description: string, 
@@ -568,6 +621,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     expenses,
     createGroup,
     addMemberToGroup,
+    removeMemberFromGroup,
     addExpense,
     getGroupBalances,
     getUserTotalBalance,

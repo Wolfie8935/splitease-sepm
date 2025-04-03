@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Check, DollarSign } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -19,6 +20,7 @@ const SettleUp = () => {
   const [isSettling, setIsSettling] = useState(false);
   const [settledAmount, setSettledAmount] = useState<number | ''>('');
   const [selectedUser, setSelectedUser] = useState<string>('');
+  const [memberDisplayNames, setMemberDisplayNames] = useState<Record<string, string>>({});
 
   if (!groupId) {
     navigate('/groups');
@@ -33,6 +35,12 @@ const SettleUp = () => {
 
   const balances = getGroupBalances(groupId);
   const currentUserBalance = balances.find(b => b.userId === currentUser?.id);
+  
+  // Function to get display name when available
+  const getMemberName = (userId: string) => {
+    const user = balances.find(b => b.userId === userId);
+    return memberDisplayNames[userId] || user?.userName || 'Unknown';
+  };
   
   // Filter for people the current user owes money to or is owed money by
   const usersToPayBack = balances.filter(balance => {
@@ -58,6 +66,37 @@ const SettleUp = () => {
     }
   }, [searchParams]);
 
+  // Fetch display names for all members
+  useEffect(() => {
+    const fetchMemberDisplayNames = async () => {
+      if (!group) return;
+      
+      const displayNames: Record<string, string> = {};
+      
+      for (const member of group.members) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', member.id)
+            .single();
+          
+          if (error) throw error;
+          
+          if (data && data.display_name) {
+            displayNames[member.id] = data.display_name;
+          }
+        } catch (error) {
+          console.error('Error fetching member display name:', error);
+        }
+      }
+      
+      setMemberDisplayNames(displayNames);
+    };
+    
+    fetchMemberDisplayNames();
+  }, [group]);
+
   const handleSettleUp = async () => {
     if (!settledAmount || settledAmount <= 0 || !selectedUser || !currentUser) {
       toast({
@@ -71,11 +110,11 @@ const SettleUp = () => {
     setIsSettling(true);
     try {
       // Add a settlement expense
-      const selectedUserName = balances.find(b => b.userId === selectedUser)?.userName || 'User';
+      const selectedUserDisplayName = getMemberName(selectedUser);
       
       await addExpense(
         groupId,
-        `Settlement payment to ${selectedUserName}`,
+        `Settlement payment to ${selectedUserDisplayName}`,
         Number(settledAmount),
         currentUser.id, // Current user is paying
         'custom',
@@ -84,7 +123,7 @@ const SettleUp = () => {
 
       toast({
         title: "Success!",
-        description: `Successfully settled up $${settledAmount} with ${selectedUserName}`,
+        description: `Successfully settled up $${settledAmount} with ${selectedUserDisplayName}`,
       });
       
       // Reset form
@@ -118,11 +157,11 @@ const SettleUp = () => {
     setIsSettling(true);
     try {
       // Add a settlement expense
-      const selectedUserName = balances.find(b => b.userId === selectedUser)?.userName || 'User';
+      const selectedUserDisplayName = getMemberName(selectedUser);
       
       await addExpense(
         groupId,
-        `Settlement received from ${selectedUserName}`,
+        `Settlement received from ${selectedUserDisplayName}`,
         Number(settledAmount),
         selectedUser, // Selected user is marked as the payer
         'custom',
@@ -131,7 +170,7 @@ const SettleUp = () => {
 
       toast({
         title: "Success!",
-        description: `Successfully recorded settlement of $${settledAmount} from ${selectedUserName}`,
+        description: `Successfully recorded settlement of $${settledAmount} from ${selectedUserDisplayName}`,
       });
       
       // Reset form
@@ -196,7 +235,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersToPayBack.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {user.userName} (${user.amount.toFixed(2)})
+                          {getMemberName(user.userId)} (${user.amount.toFixed(2)})
                         </option>
                       ))}
                     </select>
@@ -249,7 +288,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersOwingMoney.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {user.userName} (${Math.abs(user.amount).toFixed(2)})
+                          {getMemberName(user.userId)} (${Math.abs(user.amount).toFixed(2)})
                         </option>
                       ))}
                     </select>

@@ -377,10 +377,10 @@ const GroupDetail = () => {
                         <Avatar className="mr-2 h-8 w-8">
                           <AvatarImage 
                             src={memberAvatars[balance.userId]} 
-                            alt={balance.userName} 
+                            alt={getMemberName(balance.userId)} 
                           />
                           <AvatarFallback className="bg-primary text-primary-foreground">
-                            {balance.userName.charAt(0)}
+                            {getMemberName(balance.userId).charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div>

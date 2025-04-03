@@ -34,12 +34,14 @@ const SettleUp = () => {
   const balances = getGroupBalances(groupId);
   const currentUserBalance = balances.find(b => b.userId === currentUser?.id);
   
-  // Filter only people that the current user owes money to
+  // Filter for people the current user owes money to or is owed money by
   const usersToPayBack = balances.filter(balance => {
-    // If current user has positive balance, they are owed money
-    // If current user has negative balance, they owe money
-    // We want to show users that the current user owes money to (i.e., users with positive balances)
     return currentUserBalance && currentUserBalance.amount < 0 && balance.amount > 0;
+  });
+
+  // Filter for people who owe the current user money
+  const usersOwingMoney = balances.filter(balance => {
+    return currentUserBalance && currentUserBalance.amount > 0 && balance.amount < 0;
   });
 
   // Check for URL parameters and set values if provided
@@ -103,6 +105,53 @@ const SettleUp = () => {
     }
   };
 
+  const handleMarkAsSettled = async () => {
+    if (!settledAmount || settledAmount <= 0 || !selectedUser || !currentUser) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount and select a user to mark as settled",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSettling(true);
+    try {
+      // Add a settlement expense
+      const selectedUserName = balances.find(b => b.userId === selectedUser)?.userName || 'User';
+      
+      await addExpense(
+        groupId,
+        `Settlement received from ${selectedUserName}`,
+        Number(settledAmount),
+        selectedUser, // Selected user is marked as the payer
+        'custom',
+        [{ userId: currentUser.id, amount: Number(settledAmount) }] // Current user receives the money
+      );
+
+      toast({
+        title: "Success!",
+        description: `Successfully recorded settlement of $${settledAmount} from ${selectedUserName}`,
+      });
+      
+      // Reset form
+      setSettledAmount('');
+      setSelectedUser('');
+      
+      // Navigate back to group detail
+      navigate(`/groups/${groupId}`);
+    } catch (error) {
+      console.error('Error recording settlement:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to record settlement',
+        variant: "destructive",
+      });
+    } finally {
+      setIsSettling(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -140,7 +189,7 @@ const SettleUp = () => {
                     <Label htmlFor="user">Pay</Label>
                     <select 
                       id="user"
-                      className="w-full p-2 border rounded-md"
+                      className="w-full p-2 border rounded-md bg-background text-foreground"
                       value={selectedUser}
                       onChange={(e) => setSelectedUser(e.target.value)}
                     >
@@ -165,6 +214,7 @@ const SettleUp = () => {
                         value={settledAmount}
                         onChange={(e) => setSettledAmount(e.target.value ? Number(e.target.value) : '')}
                         placeholder="0.00"
+                        className="bg-background text-foreground"
                       />
                     </div>
                   </div>
@@ -180,6 +230,59 @@ const SettleUp = () => {
                 </div>
               ) : (
                 <p>There's no one to settle up with right now.</p>
+              )}
+            </div>
+          ) : currentUserBalance && currentUserBalance.amount > 0 ? (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Record Payment Received</h3>
+              
+              {usersOwingMoney.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="user">Received From</Label>
+                    <select 
+                      id="user"
+                      className="w-full p-2 border rounded-md bg-background text-foreground"
+                      value={selectedUser}
+                      onChange={(e) => setSelectedUser(e.target.value)}
+                    >
+                      <option value="">Select a person</option>
+                      {usersOwingMoney.map(user => (
+                        <option key={user.userId} value={user.userId}>
+                          {user.userName} (${Math.abs(user.amount).toFixed(2)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount</Label>
+                    <div className="flex items-center">
+                      <span className="mr-2">$</span>
+                      <Input
+                        id="amount"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={settledAmount}
+                        onChange={(e) => setSettledAmount(e.target.value ? Number(e.target.value) : '')}
+                        placeholder="0.00"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={handleMarkAsSettled} 
+                    disabled={isSettling || !settledAmount || !selectedUser}
+                    className="w-full"
+                  >
+                    {isSettling ? 'Processing...' : 'Mark as Settled'}
+                    {!isSettling && <Check className="ml-2 h-4 w-4" />}
+                  </Button>
+                </div>
+              ) : (
+                <p>There's no one who owes you money right now.</p>
               )}
             </div>
           ) : (

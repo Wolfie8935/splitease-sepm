@@ -1,31 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-  DollarSign, 
-  Home, 
-  Users, 
-  PieChart, 
-  LogOut, 
-  User, 
-  Menu, 
-  X,
-} from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+    DollarSign,
+    Home,
+    LogOut,
+    Menu,
+    PieChart,
+    User,
+    Users,
+    X,
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import LoadingScreen from './LoadingScreen';
+import { ThemeToggle } from './ThemeToggle';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -38,6 +39,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,6 +49,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('avatar_url, display_name')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (error) throw error;
+        
+        if (data) {
+          if (data.avatar_url) {
+            const { data: avatarData } = await supabase
+              .storage
+              .from('avatars')
+              .getPublicUrl(data.avatar_url);
+              
+            setAvatarUrl(avatarData.publicUrl);
+          }
+          
+          if (data.display_name) {
+            setDisplayName(data.display_name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+    
+    fetchUserProfile();
+  }, [currentUser]);
 
   const handleLogout = () => {
     logout();
@@ -95,6 +133,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarUrl} alt={currentUser.email} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
                       {userInitial}
                     </AvatarFallback>
@@ -288,15 +327,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full flex items-center justify-start px-4">
                   <Avatar className="h-6 w-6 mr-2">
+                    <AvatarImage src={avatarUrl} alt={currentUser.email} />
                     <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                       {userInitial}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate">{currentUser.email}</span>
+                  <span className="truncate">{displayName || currentUser.email}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{currentUser.email}</DropdownMenuLabel>
+                <DropdownMenuLabel>{displayName || currentUser.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/profile">

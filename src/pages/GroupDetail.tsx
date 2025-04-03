@@ -206,6 +206,21 @@ const GroupDetail = () => {
     .filter(settlement => settlement.toId === currentUser.id)
     .reduce((total, settlement) => total + settlement.amount, 0) : 0;
 
+  // Calculate settlement amount for a specific user
+  const getSettlementAmountForUser = (userId: string) => {
+    // If user is receiving money (positive settlement)
+    const receiving = settlements
+      .filter(settlement => settlement.toId === userId)
+      .reduce((total, settlement) => total + settlement.amount, 0);
+    
+    // If user is paying money (negative settlement)
+    const paying = settlements
+      .filter(settlement => settlement.fromId === userId)
+      .reduce((total, settlement) => total + settlement.amount, 0);
+      
+    return receiving - paying;
+  };
+
   const handleRemoveMember = async (memberId: string) => {
     if (!groupId || !currentUser) return;
     
@@ -401,14 +416,14 @@ const GroupDetail = () => {
                           </div>
                         ) : (
                           <div className={`text-lg font-bold ${
-                            balance.amount > 0 
+                            getSettlementAmountForUser(balance.userId) > 0 
                               ? "text-green-500" 
-                              : balance.amount < 0 
+                              : getSettlementAmountForUser(balance.userId) < 0 
                                 ? "text-red-500" 
                                 : ""
                           }`}>
-                            {balance.amount > 0 ? '+' : ''}
-                            ${balance.amount.toFixed(2)}
+                            {getSettlementAmountForUser(balance.userId) > 0 ? '+' : ''}
+                            ${Math.abs(getSettlementAmountForUser(balance.userId)).toFixed(2)}
                           </div>
                         )}
                         <div className="text-xs text-muted-foreground mt-1">

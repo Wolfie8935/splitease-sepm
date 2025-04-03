@@ -70,10 +70,6 @@ yarn dev
 - [shadcn/ui](https://ui.shadcn.com/) - UI components
 - [Vite](https://vitejs.dev/) - Build tool
 
-## 📱 Live Demo
-
-Visit [https://splitease-sepm.netlify.app](https://splitease-sepm.netlify.app) to see SplitEase in action!
-
 ## 👥 Contributors
 
 - [Aman Goel](https://github.com/amangoel185)

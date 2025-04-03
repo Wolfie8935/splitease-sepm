@@ -41,6 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [profileVersion, setProfileVersion] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -51,13 +52,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'USER_UPDATED') {
+        setProfileVersion(prev => prev + 1);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchUserProfile = async () => {
       if (!currentUser) return;
       
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('avatar_url, display_name')
+          .select('avatar_url, display_name, name')
           .eq('id', currentUser.id)
           .single();
         
@@ -70,11 +83,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               .from('avatars')
               .getPublicUrl(data.avatar_url);
               
-            setAvatarUrl(avatarData.publicUrl);
+            setAvatarUrl(`${avatarData.publicUrl}?v=${Date.now()}`);
           }
           
           if (data.display_name) {
             setDisplayName(data.display_name);
+          } else if (data.name) {
+            setDisplayName(data.name);
           }
         }
       } catch (error) {
@@ -83,7 +98,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
     
     fetchUserProfile();
-  }, [currentUser]);
+  }, [currentUser, profileVersion]);
 
   const handleLogout = () => {
     logout();

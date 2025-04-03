@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,7 @@ import {
     DollarSign,
     Edit,
     Plus,
+    UserMinus,
     UserPlus,
     Users
 } from 'lucide-react';
@@ -31,9 +33,11 @@ const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup } = useData();
+  const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup, removeMemberFromGroup } = useData();
+  const { toast } = useToast();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isRemovingMember, setIsRemovingMember] = useState<string | null>(null);
   const [editingNickname, setEditingNickname] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [memberAvatars, setMemberAvatars] = useState<Record<string, string>>({});
@@ -196,6 +200,33 @@ const GroupDetail = () => {
   };
 
   const settlements = calculateSettlements();
+  
+  // Calculate how much is owed to the current user from settlements
+  const totalOwedToUser = currentUser ? settlements
+    .filter(settlement => settlement.toId === currentUser.id)
+    .reduce((total, settlement) => total + settlement.amount, 0) : 0;
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!groupId || !currentUser) return;
+    
+    try {
+      setIsRemovingMember(memberId);
+      await removeMemberFromGroup(groupId, memberId);
+      toast({
+        title: "Member removed",
+        description: "The member has been removed from the group"
+      });
+    } catch (error) {
+      console.error('Error removing member:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to remove member",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRemovingMember(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -224,8 +255,15 @@ const GroupDetail = () => {
           <CardContent className="flex items-center gap-2">
             <DollarSign className={userBalance && userBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
             <span className="text-2xl font-bold">
-              {userBalance && userBalance.amount >= 0 ? '+' : ''}
-              ${userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00'}
+              {totalOwedToUser > 0 ? '+' : ''}
+              ${totalOwedToUser > 0 ? totalOwedToUser.toFixed(2) : (userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00')}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {totalOwedToUser > 0 
+                ? `(You're owed money)` 
+                : userBalance && userBalance.amount < 0 
+                  ? `(You owe money)` 
+                  : `(You're settled up)`}
             </span>
           </CardContent>
         </Card>
@@ -513,6 +551,24 @@ const GroupDetail = () => {
                     <div className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                       Group Admin
                     </div>
+                  )}
+                  {isAdmin && member.id !== group.createdBy && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-destructive bg-destructive/10 hover:bg-destructive/20 ml-2"
+                      onClick={() => handleRemoveMember(member.id)}
+                      disabled={isRemovingMember === member.id}
+                    >
+                      {isRemovingMember === member.id ? (
+                        <span>Removing...</span>
+                      ) : (
+                        <>
+                          <UserMinus className="h-4 w-4 mr-1" />
+                          Remove
+                        </>
+                      )}
+                    </Button>
                   )}
                 </div>
               </CardContent>

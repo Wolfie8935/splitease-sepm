@@ -1,6 +1,16 @@
 import AddExpenseForm from '@/components/AddExpenseForm';
 import AddMemberForm from '@/components/AddMemberForm';
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import {
     Avatar,
     AvatarFallback,
     AvatarImage
@@ -33,7 +43,7 @@ const GroupDetail = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup, removeMemberFromGroup } = useData();
+  const { getGroupById, getGroupExpenses, getGroupBalances, addMemberToGroup, removeMemberFromGroup, resetGroup } = useData();
   const { toast } = useToast();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
@@ -42,6 +52,8 @@ const GroupDetail = () => {
   const [nickname, setNickname] = useState('');
   const [memberAvatars, setMemberAvatars] = useState<Record<string, string>>({});
   const [memberDisplayNames, setMemberDisplayNames] = useState<Record<string, string>>({});
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   if (!groupId) {
     navigate('/groups');
@@ -240,6 +252,29 @@ const GroupDetail = () => {
       });
     } finally {
       setIsRemovingMember(null);
+    }
+  };
+
+  const handleResetGroup = async () => {
+    if (!groupId || !currentUser) return;
+    
+    try {
+      setIsResetting(true);
+      await resetGroup(groupId);
+      toast({
+        title: "Group reset",
+        description: "All expenses have been removed from the group"
+      });
+    } catch (error) {
+      console.error('Error resetting group:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to reset group",
+        variant: "destructive"
+      });
+    } finally {
+      setIsResetting(false);
+      setIsResetDialogOpen(false);
     }
   };
 
@@ -485,15 +520,15 @@ const GroupDetail = () => {
                           onClick={() => {
                             // If current user is the one who owes money
                             if (settlement.fromId === currentUser?.id) {
-                              navigate(`/groups/${groupId}/settle?to=${settlement.toId}&amount=${settlement.amount}`);
+                              navigate(`/groups/${groupId}/settle?to=${settlement.toId}&amount=${settlement.amount.toFixed(2)}`);
                             } 
                             // If current user is the one who is owed money
                             else if (settlement.toId === currentUser?.id) {
-                              navigate(`/groups/${groupId}/settle?to=${settlement.fromId}&amount=${settlement.amount}`);
+                              navigate(`/groups/${groupId}/settle?to=${settlement.fromId}&amount=${settlement.amount.toFixed(2)}`);
                             }
                             // If neither, just use default settlement direction
                             else {
-                              navigate(`/groups/${groupId}/settle?to=${settlement.toId}&amount=${settlement.amount}`);
+                              navigate(`/groups/${groupId}/settle?to=${settlement.toId}&amount=${settlement.amount.toFixed(2)}`);
                             }
                           }}
                         >
@@ -589,6 +624,25 @@ const GroupDetail = () => {
               </CardContent>
             </Card>
           ))}
+          
+          {isAdmin && (
+            <div className="mt-8 pt-4 border-t">
+              <div className="flex flex-col items-center">
+                <h3 className="text-xl font-semibold mb-2">Admin Actions</h3>
+                <Button 
+                  variant="destructive"
+                  onClick={() => setIsResetDialogOpen(true)}
+                  disabled={isResetting}
+                  className="mt-2"
+                >
+                  {isResetting ? "Resetting..." : "Reset Group"}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-2 text-center max-w-md">
+                  This will delete all expenses in the group. Group members will not be removed.
+                </p>
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -617,6 +671,31 @@ const GroupDetail = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset Group</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reset this group? This will permanently delete all expenses.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isResetting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleResetGroup();
+              }}
+              disabled={isResetting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting ? "Resetting..." : "Reset Group"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

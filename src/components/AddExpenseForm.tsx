@@ -1,18 +1,17 @@
-
-import React, { useState } from 'react';
-import { useData } from '@/contexts/DataContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select';
+import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
+import React, { useState } from 'react';
 
 interface AddExpenseFormProps {
   groupId: string;
@@ -42,13 +41,23 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
       if (splitType === 'custom' && value) {
         // Reset custom splits when amount changes
         const amountValue = parseFloat(value);
-        const equalSplitAmount = amountValue / members.length;
-        setCustomSplits(
-          members.map(member => ({
-            userId: member.id,
-            amount: parseFloat(equalSplitAmount.toFixed(2)),
-          }))
-        );
+        const splitAmount = amountValue / members.length;
+        
+        // Calculate splits for all members except the last one
+        const newSplits = members.slice(0, -1).map(member => ({
+          userId: member.id,
+          amount: parseFloat(splitAmount.toFixed(2)),
+        }));
+        
+        // Calculate the last split as the remainder
+        const totalSoFar = newSplits.reduce((sum, split) => sum + split.amount, 0);
+        const lastSplit = {
+          userId: members[members.length - 1].id,
+          amount: parseFloat((amountValue - totalSoFar).toFixed(2)),
+        };
+        newSplits.push(lastSplit);
+        
+        setCustomSplits(newSplits);
       }
     }
   };
@@ -59,13 +68,23 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
     
     if (newSplitType === 'custom' && amount) {
       const amountValue = parseFloat(amount);
-      const equalSplitAmount = amountValue / members.length;
-      setCustomSplits(
-        members.map(member => ({
-          userId: member.id,
-          amount: parseFloat(equalSplitAmount.toFixed(2)),
-        }))
-      );
+      const splitAmount = amountValue / members.length;
+      
+      // Calculate splits for all members except the last one
+      const newSplits = members.slice(0, -1).map(member => ({
+        userId: member.id,
+        amount: parseFloat(splitAmount.toFixed(2)),
+      }));
+      
+      // Calculate the last split as the remainder
+      const totalSoFar = newSplits.reduce((sum, split) => sum + split.amount, 0);
+      const lastSplit = {
+        userId: members[members.length - 1].id,
+        amount: parseFloat((amountValue - totalSoFar).toFixed(2)),
+      };
+      newSplits.push(lastSplit);
+      
+      setCustomSplits(newSplits);
     }
   };
 

@@ -56,6 +56,7 @@ interface DataContextType {
   getTotalSpent: () => number;
   isLoading: boolean;
   deleteGroup: (groupId: string) => Promise<void>;
+  resetGroup: (groupId: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -461,11 +462,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (splitType === 'equal') {
         const splitAmount = amount / group.members.length;
-        splits = group.members.map(member => ({
+        // Calculate splits for all members except the last one
+        splits = group.members.slice(0, -1).map(member => ({
           expense_id: expenseData.id,
           user_id: member.id,
           amount: parseFloat(splitAmount.toFixed(2)),
         }));
+        
+        // Calculate the last split as the remainder to ensure total matches exactly
+        const totalSoFar = splits.reduce((sum, split) => sum + split.amount, 0);
+        const lastSplit = {
+          expense_id: expenseData.id,
+          user_id: group.members[group.members.length - 1].id,
+          amount: parseFloat((amount - totalSoFar).toFixed(2)),
+        };
+        splits.push(lastSplit);
       } else if (splitType === 'custom' && customSplits) {
         const totalSplit = customSplits.reduce((sum, split) => sum + split.amount, 0);
         if (Math.abs(totalSplit - amount) > 0.01) {
@@ -616,6 +627,59 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetGroup = async (groupId: string): Promise<void> => {
+    if (!currentUser) throw new Error("You must be logged in to reset a group");
+    
+    const group = groups.find(g => g.id === groupId);
+    if (!group) throw new Error("Group not found");
+    
+    if (group.createdBy !== currentUser.id) {
+      throw new Error("Only the group creator can reset this group");
+    }
+    
+    setIsLoading(true);
+    try {
+      // Get all expenses for this group
+      const groupExpenses = expenses.filter(e => e.groupId === groupId);
+      const expenseIds = groupExpenses.map(e => e.id);
+      
+      if (expenseIds.length > 0) {
+        // Delete all expense splits first
+        const { error: splitsError } = await supabase
+          .from('expense_splits')
+          .delete()
+          .in('expense_id', expenseIds);
+          
+        if (splitsError) throw splitsError;
+        
+        // Then delete all expenses
+        const { error: expensesError } = await supabase
+          .from('expenses')
+          .delete()
+          .in('id', expenseIds);
+          
+        if (expensesError) throw expensesError;
+      }
+      
+      // Update local state
+      setExpenses(prevExpenses => prevExpenses.filter(e => e.groupId !== groupId));
+      
+      toast({
+        title: "Group reset successful",
+        description: `All expenses have been removed from "${group.name}"`,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to reset group",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     groups,
     expenses,
@@ -631,6 +695,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getTotalSpent,
     isLoading,
     deleteGroup,
+    resetGroup,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

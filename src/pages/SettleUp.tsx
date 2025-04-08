@@ -62,7 +62,8 @@ const SettleUp = () => {
     }
     
     if (amount) {
-      setSettledAmount(parseFloat(amount));
+      // Round to 2 decimal places when setting the amount from URL parameters
+      setSettledAmount(parseFloat(parseFloat(amount).toFixed(2)));
     }
   }, [searchParams]);
 

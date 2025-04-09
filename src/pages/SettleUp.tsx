@@ -236,7 +236,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersToPayBack.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {getMemberName(user.userId)} (${user.amount.toFixed(2)})
+                          {getMemberName(user.userId)} (₹{user.amount.toFixed(2)})
                         </option>
                       ))}
                     </select>
@@ -289,7 +289,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersOwingMoney.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {getMemberName(user.userId)} (${Math.abs(user.amount).toFixed(2)})
+                          {getMemberName(user.userId)} (₹{Math.abs(user.amount).toFixed(2)})
                         </option>
                       ))}
                     </select>

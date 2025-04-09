@@ -257,11 +257,14 @@ const Analytics = () => {
                           </div>
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground">Average</span>
-                            <p className="text-xl font-semibold">
-                              {groupExpenses.length > 0 
-                                ? (totalAmount / groupExpenses.length).toFixed(2) 
-                                : '0.00'}
-                            </p>
+                            <div className="flex items-center">
+                              <IndianRupee className="h-4 w-4 mr-1" />
+                              <p className="text-xl font-semibold">
+                                {groupExpenses.length > 0 
+                                  ? (totalAmount / groupExpenses.length).toFixed(2) 
+                                  : '0.00'}
+                              </p>
+                            </div>
                           </div>
                         </div>
                         <div className="relative pt-1">

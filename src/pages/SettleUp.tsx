@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Check, DollarSign } from 'lucide-react';
+import { ArrowLeft, Check, IndianRupee } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -124,7 +124,7 @@ const SettleUp = () => {
 
       toast({
         title: "Success!",
-        description: `Successfully settled up $${settledAmount} with ${selectedUserDisplayName}`,
+        description: `Successfully settled up ₹${settledAmount} with ${selectedUserDisplayName}`,
       });
       
       // Reset form
@@ -171,7 +171,7 @@ const SettleUp = () => {
 
       toast({
         title: "Success!",
-        description: `Successfully recorded settlement of $${settledAmount} from ${selectedUserDisplayName}`,
+        description: `Successfully recorded settlement of ₹${settledAmount} from ${selectedUserDisplayName}`,
       });
       
       // Reset form
@@ -207,10 +207,10 @@ const SettleUp = () => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2 mb-6">
-            <DollarSign className={currentUserBalance && currentUserBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
+            <IndianRupee className={currentUserBalance && currentUserBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
             <span className="text-2xl font-bold">
               {currentUserBalance && currentUserBalance.amount >= 0 ? '+' : ''}
-              ${currentUserBalance ? Math.abs(currentUserBalance.amount).toFixed(2) : '0.00'}
+              {currentUserBalance ? Math.abs(currentUserBalance.amount).toFixed(2) : '0.00'}
             </span>
             <span className="text-muted-foreground">
               {currentUserBalance && currentUserBalance.amount >= 0 
@@ -236,7 +236,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersToPayBack.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {getMemberName(user.userId)} (${user.amount.toFixed(2)})
+                          {getMemberName(user.userId)} (₹{user.amount.toFixed(2)})
                         </option>
                       ))}
                     </select>
@@ -245,7 +245,7 @@ const SettleUp = () => {
                   <div className="space-y-2">
                     <Label htmlFor="amount">Amount</Label>
                     <div className="flex items-center">
-                      <span className="mr-2">$</span>
+                      <span className="mr-2">₹</span>
                       <Input
                         id="amount"
                         type="number"
@@ -289,7 +289,7 @@ const SettleUp = () => {
                       <option value="">Select a person</option>
                       {usersOwingMoney.map(user => (
                         <option key={user.userId} value={user.userId}>
-                          {getMemberName(user.userId)} (${Math.abs(user.amount).toFixed(2)})
+                          {getMemberName(user.userId)} (₹{Math.abs(user.amount).toFixed(2)})
                         </option>
                       ))}
                     </select>
@@ -298,7 +298,7 @@ const SettleUp = () => {
                   <div className="space-y-2">
                     <Label htmlFor="amount">Amount</Label>
                     <div className="flex items-center">
-                      <span className="mr-2">$</span>
+                      <span className="mr-2">₹</span>
                       <Input
                         id="amount"
                         type="number"

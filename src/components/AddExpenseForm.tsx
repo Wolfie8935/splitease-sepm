@@ -158,7 +158,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="amount">Amount ($)</Label>
+        <Label htmlFor="amount">Amount (₹)</Label>
         <Input
           id="amount"
           placeholder="0.00"
@@ -203,7 +203,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
           <div className="flex justify-between items-center">
             <Label>Custom splits</Label>
             <div className={`text-sm ${customSplitError ? 'text-red-500' : 'text-muted-foreground'}`}>
-              Total: ${totalCustomSplit.toFixed(2)} / ${amountValue.toFixed(2)}
+              Total: ₹{totalCustomSplit.toFixed(2)} / ₹{amountValue.toFixed(2)}
             </div>
           </div>
           

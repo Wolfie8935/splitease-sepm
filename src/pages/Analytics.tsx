@@ -86,12 +86,12 @@ const Analytics = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors">
                 <span className="text-muted-foreground">Total Spent:</span>
-                <span className="font-semibold text-xl">${totalSpent.toFixed(2)}</span>
+                <span className="font-semibold text-xl">₹{totalSpent.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors">
                 <span className="text-muted-foreground">Current Balance:</span>
                 <span className={`font-semibold text-xl ${totalBalance >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
-                  {totalBalance >= 0 ? '+' : ''}${Math.abs(totalBalance).toFixed(2)}
+                  {totalBalance >= 0 ? '+' : ''}₹{Math.abs(totalBalance).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors">
@@ -135,7 +135,7 @@ const Analytics = () => {
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                    formatter={(value: number) => [`₹${value.toFixed(2)}`, 'Amount']}
                     contentStyle={{
                       borderRadius: '8px',
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -188,7 +188,7 @@ const Analytics = () => {
                       axisLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
                     />
                     <Tooltip
-                      formatter={(value: number, name: string) => [`$${value.toFixed(2)}`, name]}
+                      formatter={(value: number, name: string) => [`₹${value.toFixed(2)}`, name]}
                       labelFormatter={(label) => `Expense: ${label}`}
                       contentStyle={{
                         borderRadius: '8px',
@@ -239,7 +239,7 @@ const Analytics = () => {
                         <div className="grid grid-cols-3 gap-4">
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground">Total spent</span>
-                            <p className="text-xl font-semibold">${totalAmount.toFixed(2)}</p>
+                            <p className="text-xl font-semibold">₹{totalAmount.toFixed(2)}</p>
                           </div>
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground">Expenses</span>
@@ -248,7 +248,7 @@ const Analytics = () => {
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground">Average</span>
                             <p className="text-xl font-semibold">
-                              ${groupExpenses.length > 0 
+                              {groupExpenses.length > 0 
                                 ? (totalAmount / groupExpenses.length).toFixed(2) 
                                 : '0.00'}
                             </p>

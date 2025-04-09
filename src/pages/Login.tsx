@@ -1,12 +1,11 @@
-
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { IndianRupee } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -32,7 +31,7 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <div className="bg-primary text-primary-foreground p-3 rounded-full">
-            <DollarSign size={32} />
+            <IndianRupee size={32} />
           </div>
         </div>
         

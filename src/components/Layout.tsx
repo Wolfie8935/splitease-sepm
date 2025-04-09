@@ -13,14 +13,14 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import {
-    DollarSign,
     Home,
+    IndianRupee,
     LogOut,
     Menu,
     PieChart,
     User,
     Users,
-    X,
+    X
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -136,7 +136,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Button>
             <Link to="/dashboard" className="flex items-center space-x-2">
               <div className="bg-primary text-primary-foreground p-1 rounded-md">
-                <DollarSign size={20} />
+                <IndianRupee size={20} />
               </div>
               <span className="font-bold text-xl">SplitEase</span>
             </Link>
@@ -192,7 +192,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-4 flex justify-between items-center border-b">
           <Link to="/dashboard" className="flex items-center space-x-2">
             <div className="bg-primary text-primary-foreground p-1 rounded-md">
-              <DollarSign size={20} />
+              <IndianRupee size={20} />
             </div>
             <span className="font-bold text-lg">SplitEase</span>
           </Link>
@@ -277,7 +277,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="p-6">
             <Link to="/dashboard" className="flex items-center space-x-2">
               <div className="bg-primary text-primary-foreground p-2 rounded-md">
-                <DollarSign size={24} />
+                <IndianRupee size={24} />
               </div>
               <span className="font-bold text-xl">SplitEase</span>
             </Link>

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
+import { IndianRupee } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface AddExpenseFormProps {
@@ -158,14 +159,17 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="amount">Amount ($)</Label>
-        <Input
-          id="amount"
-          placeholder="0.00"
-          value={amount}
-          onChange={handleAmountChange}
-          required
-        />
+        <Label htmlFor="amount">Amount</Label>
+        <div className="flex items-center">
+          <IndianRupee className="mr-2 h-4 w-4" />
+          <Input
+            id="amount"
+            placeholder="0.00"
+            value={amount}
+            onChange={handleAmountChange}
+            required
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
@@ -203,7 +207,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ groupId, onSuccess, mem
           <div className="flex justify-between items-center">
             <Label>Custom splits</Label>
             <div className={`text-sm ${customSplitError ? 'text-red-500' : 'text-muted-foreground'}`}>
-              Total: ${totalCustomSplit.toFixed(2)} / ${amountValue.toFixed(2)}
+              Total: {totalCustomSplit.toFixed(2)} / {amountValue.toFixed(2)}
             </div>
           </div>
           

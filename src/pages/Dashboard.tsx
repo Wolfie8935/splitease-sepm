@@ -1,20 +1,17 @@
-
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { 
-  DollarSign, 
-  PieChart, 
-  PlusCircle, 
-  Users, 
-  ArrowUpCircle, 
-  ArrowDownCircle 
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+    ArrowUpCircle,
+    IndianRupee,
+    PieChart,
+    PlusCircle,
+    Users
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState<string>('');
@@ -63,10 +60,10 @@ const Dashboard = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <DollarSign className={totalBalance >= 0 ? "text-green-500" : "text-red-500"} />
+            <IndianRupee className={totalBalance >= 0 ? "text-green-500" : "text-red-500"} />
             <span className="text-2xl font-bold">
               {totalBalance >= 0 ? '+' : ''}
-              ${Math.abs(totalBalance).toFixed(2)}
+              ₹{Math.abs(totalBalance).toFixed(2)}
             </span>
           </CardContent>
           <CardDescription className="px-6 pb-4">
@@ -82,7 +79,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="flex items-center gap-2">
             <ArrowUpCircle className="text-primary" />
-            <span className="text-2xl font-bold">${totalSpent.toFixed(2)}</span>
+            <span className="text-2xl font-bold">₹{totalSpent.toFixed(2)}</span>
           </CardContent>
           <CardDescription className="px-6 pb-4">
             Your total expenses across all groups

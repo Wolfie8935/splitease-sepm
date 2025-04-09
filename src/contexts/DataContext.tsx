@@ -516,7 +516,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast({
         title: "Expense added",
-        description: `Successfully added expense "${description}" for $${amount.toFixed(2)}`,
+        description: `Successfully added expense "${description}" for ₹${amount.toFixed(2)}`,
       });
       
       return newExpense;

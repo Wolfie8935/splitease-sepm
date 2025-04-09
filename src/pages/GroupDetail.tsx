@@ -29,8 +29,8 @@ import {
     ArrowRightLeft,
     Check,
     Clock,
-    DollarSign,
     Edit,
+    IndianRupee,
     Plus,
     UserMinus,
     UserPlus,
@@ -303,10 +303,10 @@ const GroupDetail = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Your Balance</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <DollarSign className={userBalance && userBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
+            <IndianRupee className={userBalance && userBalance.amount >= 0 ? "text-green-500" : "text-red-500"} />
             <span className="text-2xl font-bold">
               {totalOwedToUser > 0 ? '+' : ''}
-              ${totalOwedToUser > 0 ? totalOwedToUser.toFixed(2) : (userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00')}
+              ₹{totalOwedToUser > 0 ? totalOwedToUser.toFixed(2) : (userBalance ? Math.abs(userBalance.amount).toFixed(2) : '0.00')}
             </span>
             <span className="text-sm text-muted-foreground">
               {totalOwedToUser > 0 
@@ -323,9 +323,9 @@ const GroupDetail = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <DollarSign className="text-primary" />
+            <IndianRupee className="text-primary" />
             <span className="text-2xl font-bold">
-              ${expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)}
+              ₹{expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)}
             </span>
           </CardContent>
         </Card>
@@ -398,7 +398,7 @@ const GroupDetail = () => {
                             <span>{new Date(expense.date).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        <div className="text-lg font-bold">${expense.amount.toFixed(2)}</div>
+                        <div className="text-lg font-bold">₹{expense.amount.toFixed(2)}</div>
                       </div>
                     </CardContent>
                   </Card>
@@ -447,7 +447,7 @@ const GroupDetail = () => {
                       <div className="flex flex-col items-end">
                         {balance.amount === 0 ? (
                           <div className="text-lg font-bold">
-                            ${calculateTotalSpentByUser(balance.userId).toFixed(2)}
+                            ₹{calculateTotalSpentByUser(balance.userId).toFixed(2)}
                           </div>
                         ) : (
                           <div className={`text-lg font-bold ${
@@ -458,11 +458,11 @@ const GroupDetail = () => {
                                 : ""
                           }`}>
                             {getSettlementAmountForUser(balance.userId) > 0 ? '+' : ''}
-                            ${Math.abs(getSettlementAmountForUser(balance.userId)).toFixed(2)}
+                            ₹{Math.abs(getSettlementAmountForUser(balance.userId)).toFixed(2)}
                           </div>
                         )}
                         <div className="text-xs text-muted-foreground mt-1">
-                          Total paid: ${calculateTotalPaidByUser(balance.userId).toFixed(2)}
+                          Total paid: ₹{calculateTotalPaidByUser(balance.userId).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -514,7 +514,7 @@ const GroupDetail = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="font-bold">${settlement.amount.toFixed(2)}</div>
+                        <div className="font-bold">₹{settlement.amount.toFixed(2)}</div>
                         <Button 
                           size="sm" 
                           onClick={() => {

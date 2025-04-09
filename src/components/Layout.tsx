@@ -8,6 +8,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAdmin } from '@/contexts/AdminContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +20,7 @@ import {
     Menu,
     PieChart,
     User,
+    UserCog,
     Users,
     X,
 } from 'lucide-react';
@@ -32,8 +34,11 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+const ADMIN_EMAIL = 'ag2351@srmist.edu.in';
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { currentUser, logout } = useAuth();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -120,6 +125,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const userInitial = currentUser.email ? currentUser.email.charAt(0).toUpperCase() : 'U';
 
+  const navigationItems = [
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Groups', href: '/groups', icon: Users },
+    { name: 'Analytics', href: '/analytics', icon: PieChart },
+    { name: 'Profile', href: '/profile', icon: User },
+  ];
+
+  if (isAdmin && currentUser?.email === ADMIN_EMAIL) {
+    navigationItems.push({ name: 'Admin', href: '/admin', icon: UserCog });
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Mobile Header */}
@@ -202,57 +218,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         
         <nav className="p-4 space-y-1">
-          <Link
-            to="/dashboard"
-            className={`flex items-center px-4 py-3 rounded-md text-sm ${
-              isActive('/dashboard')
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent'
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <Home className="mr-3 h-5 w-5" />
-            Dashboard
-          </Link>
-          
-          <Link
-            to="/groups"
-            className={`flex items-center px-4 py-3 rounded-md text-sm ${
-              isActive('/groups')
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent'
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <Users className="mr-3 h-5 w-5" />
-            Groups
-          </Link>
-          
-          <Link
-            to="/analytics"
-            className={`flex items-center px-4 py-3 rounded-md text-sm ${
-              isActive('/analytics')
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent'
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <PieChart className="mr-3 h-5 w-5" />
-            Analytics
-          </Link>
-
-          <Link
-            to="/profile"
-            className={`flex items-center px-4 py-3 rounded-md text-sm ${
-              isActive('/profile')
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent'
-            }`}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <User className="mr-3 h-5 w-5" />
-            Profile
-          </Link>
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={`flex items-center px-4 py-3 rounded-md text-sm ${
+                  isActive(item.href)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-accent'
+                }`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <Icon className="mr-3 h-5 w-5" />
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
         
         <div className="absolute bottom-0 w-full border-t p-4">
@@ -273,64 +256,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
-        <aside className="w-64 border-r bg-background hidden md:block">
-          <div className="p-6">
-            <Link to="/dashboard" className="flex items-center space-x-2">
-              <div className="bg-primary text-primary-foreground p-2 rounded-md">
-                <DollarSign size={24} />
-              </div>
-              <span className="font-bold text-xl">SplitEase</span>
-            </Link>
+        <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-64 border-r bg-card">
+          <div className="flex items-center gap-2 p-4 border-b">
+            <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+              <DollarSign size={24} />
+            </div>
+            <span className="font-semibold text-lg">SplitEase</span>
           </div>
           
-          <nav className="px-4 py-2 space-y-1">
-            <Link
-              to="/dashboard"
-              className={`flex items-center px-4 py-3 rounded-md text-sm ${
-                isActive('/dashboard')
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-accent'
-              }`}
-            >
-              <Home className="mr-3 h-5 w-5" />
-              Dashboard
-            </Link>
-            
-            <Link
-              to="/groups"
-              className={`flex items-center px-4 py-3 rounded-md text-sm ${
-                isActive('/groups')
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-accent'
-              }`}
-            >
-              <Users className="mr-3 h-5 w-5" />
-              Groups
-            </Link>
-            
-            <Link
-              to="/analytics"
-              className={`flex items-center px-4 py-3 rounded-md text-sm ${
-                isActive('/analytics')
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-accent'
-              }`}
-            >
-              <PieChart className="mr-3 h-5 w-5" />
-              Analytics
-            </Link>
-            
-            <Link
-              to="/profile"
-              className={`flex items-center px-4 py-3 rounded-md text-sm ${
-                isActive('/profile')
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-accent'
-              }`}
-            >
-              <User className="mr-3 h-5 w-5" />
-              Profile
-            </Link>
+          <nav className="flex-1 p-4 space-y-1">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive(item.href)
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
           
           <div className="absolute bottom-0 w-64 border-t p-4">
@@ -369,7 +321,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </aside>
         
         {/* Main content and Footer */}
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col min-h-screen md:ml-64">
           <main className="flex-1 p-4 sm:p-6 bg-background">
             <div className="mx-auto max-w-5xl">
               {children}

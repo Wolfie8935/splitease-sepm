@@ -153,13 +153,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
         <Button
           variant="outline"
           size="sm"
           onClick={() => fetchUsers()}
           disabled={loading}
+          className="w-full sm:w-auto"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -173,117 +174,199 @@ const AdminDashboard = () => {
             Manage user accounts and permissions
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[...users]
-                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                  .map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name || 'N/A'}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Dialog open={isPasswordDialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
-                          setIsPasswordDialogOpen(open);
-                          if (!open) {
-                            setSelectedUser(null);
-                            setNewPassword('');
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedUser(user)}
-                              title="Set new password"
-                            >
-                              <Key className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Set New Password</DialogTitle>
-                              <DialogDescription>
-                                Set a new password for {user.email}
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="new-password">New Password</Label>
-                                <Input
-                                  id="new-password"
-                                  type="password"
-                                  value={newPassword}
-                                  onChange={(e) => setNewPassword(e.target.value)}
-                                  placeholder="Enter new password"
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button
-                                onClick={handleUpdatePassword}
-                                disabled={!newPassword}
-                              >
-                                Update Password
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleResetPassword(user.email)}
-                          title="Send password reset email"
-                        >
-                          <UserCog className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete User</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete this user? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteUser(user.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden sm:table-cell">Created At</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {[...users]
+                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">
+                        <div>
+                          {user.name || 'N/A'}
+                          <div className="sm:hidden text-xs text-muted-foreground mt-1">
+                            {user.email}
+                          </div>
+                          <div className="sm:hidden text-xs text-muted-foreground">
+                            {new Date(user.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">{user.email}</TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Dialog open={isPasswordDialogOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
+                            setIsPasswordDialogOpen(open);
+                            if (!open) {
+                              setSelectedUser(null);
+                              setNewPassword('');
+                            }
+                          }}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedUser(user)}
+                                title="Set new password"
+                                className="hidden sm:inline-flex"
+                              >
+                                <Key className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Set New Password</DialogTitle>
+                                <DialogDescription>
+                                  Set a new password for {user.email}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                  <Label htmlFor="new-password">New Password</Label>
+                                  <Input
+                                    id="new-password"
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Enter new password"
+                                  />
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button
+                                  onClick={handleUpdatePassword}
+                                  disabled={!newPassword}
+                                >
+                                  Update Password
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleResetPassword(user.email)}
+                            title="Send password reset email"
+                            className="hidden sm:inline-flex"
+                          >
+                            <UserCog className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="hidden sm:inline-flex">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="sm:max-w-[425px]">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this user? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          {/* Mobile Actions */}
+                          <div className="sm:hidden">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  Actions
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>User Actions</DialogTitle>
+                                  <DialogDescription>
+                                    Manage {user.name || user.email}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedUser(user);
+                                      setIsPasswordDialogOpen(true);
+                                    }}
+                                    className="justify-start"
+                                  >
+                                    <Key className="h-4 w-4 mr-2" />
+                                    Set New Password
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => handleResetPassword(user.email)}
+                                    className="justify-start"
+                                  >
+                                    <UserCog className="h-4 w-4 mr-2" />
+                                    Send Password Reset
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className="justify-start text-destructive"
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete User
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete this user? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => handleDeleteUser(user.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
